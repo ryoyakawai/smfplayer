@@ -13,8 +13,8 @@ this application support Web MIDI Link which is tone generator build on top of W
 (Thanks for [@g200kg](https://twitter.com/g200kg)!!)
 
  - What is Standard MIDI File? -> [Standard MIDI File@wikipedia](http://en.wikipedia.org/wiki/Standard_MIDI_File#Standard_MIDI_files)
-  - What is Web MIDI API? -> [Web MIDI API@W3C](http://webaudio.github.io/web-midi-api/)
-   - What is Web MIDI Link? -> [Web MIDI Link](http://www.g200kg.com/en/docs/webmidilink/)
+ - What is Web MIDI API? -> [Web MIDI API@W3C](http://webaudio.github.io/web-midi-api/)
+ - What is Web MIDI Link? -> [Web MIDI Link](http://www.g200kg.com/en/docs/webmidilink/)
 
 ## Requirements (as is 2014/05)
 [Google Chrome](https://www.google.com/intl/en/chrome/browser/) Version 34 or higher.
