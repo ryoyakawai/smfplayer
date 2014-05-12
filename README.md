@@ -26,14 +26,14 @@ this application support Web MIDI Link which is tone generator build on top of W
 Parse Standard MIDI File to JavaScript Object.
 
     var smfParser=new SmfParser();
-        var parsedSmf = smfParser.parse( [midiFile] );
+    var parsedSmf = smfParser.parse( [midiFile] );
 
 
 ###js/smfPlayer.js
 Playback JavaScript Objected Standard MIDI File.
 
     var smfPlayer=new SmfPlayer();
-        smfPlayer.init( [JavaScript Objected Standard MIDI File], latency, eventNo );
+    smfPlayer.init( [JavaScript Objected Standard MIDI File], latency, eventNo );
 
 * **latency (msec)**: Set number unit of milliseconds that you want delay.
 * **eventNo**: Pass event number of JavaScript Object where to start play.
