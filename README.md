@@ -63,6 +63,6 @@ Implementation of Web MIDI Link parts are here.
 **js/app.js : Line62-84** : Send message to Web MIDI Link. Very similar to Web MIDI API.
 
 
-###LICENSE
+## LICENSE
 [LICENSE](https://raw.githubusercontent.com/ryoyakawai/smfplayer/master/LICENSE)
 
