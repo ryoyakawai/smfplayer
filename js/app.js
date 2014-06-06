@@ -115,8 +115,7 @@ function scb(access) {
 
         //smfPlayer.dispEventMonitor=dispEventMonitor;
         document.addEventListener("midi-ch-update", function(event){
-            var ed=event.detail;
-            dispEventMonitor(ed.msg, ed.type, ed.latency);
+            dispEventMonitor(event.detail.msg, event.detail.type, event.detail.latency);
         });
         
         
