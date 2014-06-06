@@ -207,7 +207,7 @@ function fireEvent(type, elem) {
 }
 document.getElementById("recvMsg").addEventListener("mousedown", function(event){
     useEventMonitor=!useEventMonitor;
-    document.getElementById("recvMsg").style.setProperty("transition", "0.3s");
+    document.getElementById("recvMsg").style.setProperty("transition", "0.4s");
     setTimeout(function(){
         var dc=document.getElementById("recvMsg");
         if(useEventMonitor==true) {
@@ -216,7 +216,7 @@ document.getElementById("recvMsg").addEventListener("mousedown", function(event)
             dc.className+=" off";
         }
         setTimeout(function(){ document.getElementById("recvMsg").style.setProperty("transition", "0s");}, 200);
-    }, 200);
+    }, 400);
 });
 
 
