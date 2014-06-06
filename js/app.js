@@ -18,8 +18,9 @@ var dispMsgBuffer=[];
 var dispBufferSize=30;
 var dispChildCSize=200;
 var timerId;
-var latency=800;
+var latency=1200;
 var worker;
+var useEventMonitor=false;
 var webMidiLinkSynth=[
     {
         "id":"wml00", "version": 1, "manufacturer":"g200kg",
@@ -113,13 +114,15 @@ function scb(access) {
     document.getElementById("midiOutSel").addEventListener("change", function() {
         var port=document.getElementById("midiOutSel").value;
 
-        //smfPlayer.dispEventMonitor=dispEventMonitor;
         document.addEventListener("midi-ch-update", function(event){
-            dispEventMonitor(event.detail.msg, event.detail.type, event.detail.latency);
+            if(useEventMonitor==true) dispEventMonitor(event.detail.msg, event.detail.type, event.detail.latency);
+            dispStatusMonitor("output", parseInt(parseInt(event.detail.msg[0], 16).toString(16).substr(1, 1), 16)+1 );
         });
         
-        
         fireEvent("change", "#inputCh");
+        if(!document.getElementById("midiin1").classList.contains("label-success")) {
+            fireEvent("mousedown", "#midiin1");
+        }
         
         if(port>=outputs.length) {
             var sdata=webMidiLinkSynth[port-outputs.length];
@@ -202,6 +205,21 @@ function fireEvent(type, elem) {
     e.initEvent(type, true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
     b.dispatchEvent(e);
 }
+document.getElementById("recvMsg").addEventListener("mousedown", function(event){
+    useEventMonitor=!useEventMonitor;
+    document.getElementById("recvMsg").style.setProperty("transition", "0.3s");
+    setTimeout(function(){
+        var dc=document.getElementById("recvMsg");
+        if(useEventMonitor==true) {
+            dc.className=dc.className.replace(" off", "");
+        } else {
+            dc.className+=" off";
+        }
+        setTimeout(function(){ document.getElementById("recvMsg").style.setProperty("transition", "0s");}, 200);
+    }, 200);
+});
+
+
 
 // midi file player
 var smfPlayer, parsedMidi=[];
@@ -233,6 +251,10 @@ function fileLoad(event) {
 
     };
     reader.readAsBinaryString(file);
+
+//    smfPlayer.dispEventMonitor=dispEventMonitor;
+
+
     event.preventDefault();
     return false;
 };
@@ -243,8 +265,8 @@ function fileLoad(event) {
 var stopped=false;
 document.getElementById("midistart").addEventListener("click", function() {
     var midistartB=document.getElementById("midistartB");
-    switch(midistartB.className) {
-      case "glyphicon glyphicon-play":
+    if(midistartB.classList.contains("glyphicon-play")) {
+        document.getElementById("play-indicator").className+=" on";
         smfPlayer.setStartTime();
         if(stopped==true) {
             smfPlayer.changeFinished(false);
@@ -254,14 +276,16 @@ document.getElementById("midistart").addEventListener("click", function() {
         var Idx=document.getElementById("midiFileList").value;
         smfPlayer.init(parsedMidi[Idx].data, latency, parsedMidi[Idx].eventNo);
         smfPlayer.startPlay();
-        break;
-      case "glyphicon glyphicon-pause":
+    } else if(midistartB.classList.contains("glyphicon-pause")){
+        setTimeout(function(){
+            document.getElementById("play-indicator").className=
+                document.getElementById("play-indicator").className.replace(" on", "");
+        }, latency/2);
         var Idx=document.getElementById("midiFileList").value;
         parsedMidi[Idx].eventNo=smfPlayer.eventNo;
         midistartB.className="glyphicon glyphicon-play";
         smfPlayer.stopPlay();
         stopped=true;
-        break;
     }
 });
 document.getElementById("midiFileList").addEventListener("change", function() {
@@ -298,7 +322,6 @@ function dispStatusMonitor(type, ch) {
         midiLabel="midiout"+ch;
         break;
     }
-    
     var light=document.getElementById(midiLabel);
     if(light.className=="label label-default") {
         setTimeout(function(){
@@ -333,7 +356,7 @@ function dispEventMonitor(msg, type, latency) {
             // for status monitor
             var ch=(parseInt(tmp.substr(1, 1), 16)+1).toString(10);
             if(type!="input") {
-                dispStatusMonitor("output", ch);
+//                dispStatusMonitor("output", ch);
             }
             // for event Monitor
             var color;
