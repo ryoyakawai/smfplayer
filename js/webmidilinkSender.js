@@ -31,6 +31,7 @@ function Synth() {
             iframe.style.setProperty("margin", "20px");
             iframe.style.setProperty("border-radius", "5px");
             iframe.id="sy01";
+            elem.innerHTML="";
             elem.appendChild(iframe);
             this.sy=iframe.contentWindow;
         }

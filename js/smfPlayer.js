@@ -256,7 +256,10 @@ SmfPlayer.prototype={
     },
     
     dispEventMonitor: function(msg, type, latency) {
-        //console.log('[TEST] ', msg);
+        var e=document.createEvent('HTMLEvents');
+        e.initEvent("midi-ch-update", true, true);
+        e.detail={"msg":msg, "type":type, "latency": latency};
+        document.dispatchEvent(e);
     },
 
     changeFinished: function(status) {

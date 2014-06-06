@@ -44,44 +44,83 @@ window.onload=function() {
 function scb(access) {
     var midi=access;
 
-
     // for midi in
     inputs=midi.inputs();
     var misel=document.getElementById("midiInSel");
     var options=new Array();
-    for(var i=0; i<inputs.length; i++) {
-        misel.options[i]=new Option(inputs[i]["name"], i);
+    misel.options[0]=new Option("(Select MIDI Input Device)", "");
+    for(var i=1; i<inputs.length; i++) {
+        misel.options[i]=new Option(inputs[i-1]["name"], i-1);
     }
     document.querySelector("#midiInSelB").removeAttribute("disabled");
-    document.querySelector("#midiInSelB").addEventListener("mousedown", function(event){
+    //document.querySelector("#midiInSelB").addEventListener("mousedown", function(event){
+    document.querySelector("#midiInSel").addEventListener("change", function(event){
+        //document.getElementById("midiInSelB").setAttribute("disabled", "disabled");
+        //document.getElementById("midiInSel").setAttribute("disabled", "disabled");
+        document.getElementById("midiinicon").style.setProperty("color", "#5bc0de");
+        for(var i=0; i<inputs.length; i++) {
+            inputs[i].onmidimessage=function() {
+                return;
+            };
+        }
+        
         var idx=document.getElementById("midiInSel").value;
+        if(isNaN(parseInt(idx))) return;
         midiin=inputs[idx];
         midiin.onmidimessage=function(event){
-            var ch=(document.getElementById("inputCh").value+1).toString(16);
-            var fb0=event.data[0].toString(16).shift();
-            var fb1=event.data[0].toString(16).pop();
-            var fb=fb0+ch;
+            var ch=(parseInt(document.getElementById("inputCh").value, 10)-1).toString(16);
+            var fb0=event.data[0].toString(16).substr(0, 1);
+            var fb1=event.data[0].toString(16).substr(1, 1);
+            var fb="0x"+fb0+ch;
             var msg=[fb, event.data[1], event.data[2]];
-            console.log("[Recieved MIDI Msg]", msg);
             midiout.send(msg);
         };
     });
-    
+    document.getElementById("inputCh").addEventListener("change", function(event){
+        var ch=(parseInt(event.target.value, 10)-1).toString(16);
+        if(typeof midiout=="object") {
+            //document.getElementById("prgChange").value=0;
+            //midiout.send(["0xc"+ch, 0]);
+        }
 
+        if(typeof outputs[document.getElementById("midiOutSel").value]=="object") {
+            if(ch==0
+               && outputs[document.getElementById("midiOutSel").value].name.match(/NSX\-39/)) {
+                document.getElementById("prgChange").style.setProperty("visibility", "hidden");
+                document.querySelector(".pg-disp").innerHTML="eVocaloid";
+            } else {
+                document.getElementById("prgChange").style.setProperty("visibility", "visible");
+                document.querySelector(".pg-disp").innerHTML="PG#";
+            }
+        }
+
+    });
+    
     // for midi out
     outputs=midi.outputs();
     var mosel=document.getElementById("midiOutSel");
     var options=new Array();
-    for(var i=0; i<outputs.length; i++) {
-        mosel.options[i]=new Option(outputs[i]["name"], i);
+    mosel.options[0]=new Option("(Select MIDI Input Device)", "");
+    for(var i=1; i<outputs.length; i++) {
+        mosel.options[i]=new Option(outputs[i-1]["name"], i-1);
     }
     for(var i=0; i<webMidiLinkSynth.length; i++) {
         mosel.options[mosel.options.length]=new Option(webMidiLinkSynth[i].name, mosel.options.length);
     }
     document.querySelector("#midiOutSelB").removeAttribute("disabled");
     
-    document.getElementById("midiOutSelB").addEventListener("click", function() {
+    //document.getElementById("midiOutSelB").addEventListener("click", function() {
+    document.getElementById("midiOutSel").addEventListener("change", function() {
         var port=document.getElementById("midiOutSel").value;
+
+        //smfPlayer.dispEventMonitor=dispEventMonitor;
+        document.addEventListener("midi-ch-update", function(event){
+            var ed=event.detail;
+            dispEventMonitor(ed.msg, ed.type, ed.latency);
+        });
+        
+        
+        fireEvent("change", "#inputCh");
         
         if(port>=outputs.length) {
             var sdata=webMidiLinkSynth[port-outputs.length];
@@ -116,12 +155,16 @@ function scb(access) {
             
         }
 
-        document.getElementById("midiinicon").style.setProperty("color", "#5bc0de");
-        document.getElementById("midiOutSelB").setAttribute("disabled", "disabled");
-        document.getElementById("midiOutSel").setAttribute("disabled", "disabled");
+        //document.getElementById("midiOutSelB").setAttribute("disabled", "disabled");
+        //document.getElementById("midiOutSel").setAttribute("disabled", "disabled");
+        document.getElementById("midiouticon").style.setProperty("color", "#5bc0de");
         
-        document.getElementById("whiteout").style.setProperty("display", "none");
-        document.getElementById("panic").style.setProperty("visibility", "visible");
+        document.getElementById("whiteout").style.setProperty("opacity", "0");
+        setTimeout(function(){
+            document.getElementById("whiteout").style.setProperty("display", "none");
+        }, 800);
+        document.getElementById("panic").style.setProperty("opacity", "1.0");
+        document.getElementById("panic").removeAttribute("disabled");
         
         document.getElementById("panic").addEventListener("click", function(){
             for(var i=0; i<16; i++) {
@@ -135,6 +178,19 @@ function scb(access) {
             document.getElementById("midistartB").className="glyphicon glyphicon-play";
         };
 
+    });
+    // add program change
+    var el=document.getElementById("prgChange");
+    for(var i=0; i<voiceList.gmVoiceList.instruments.length; i++) {
+        el.options[i]=new Option((i+1)+": "+voiceList.gmVoiceList.instruments[i], i);
+    }
+    el.addEventListener("change", function(event){
+        var mc=(parseInt(document.getElementById("inputCh").value, 10)-1).toString(16);
+        var idx=parseInt(event.target.value, 10);
+        var msg=["0xc"+mc, idx];
+        if(typeof midiout=="object") {
+            midiout.send(msg);
+        }
     });
 }
 function ecb(e){
@@ -175,11 +231,6 @@ function fileLoad(event) {
         var mfList=document.getElementById("midiFileList");
         mfList.options[Idx]=new Option(parsedMidi[Idx].name+" ( "+ parsedMidi[Idx].size +" KB )", Idx);
         mfList.options[Idx].selected=true;
-        
-        
-        dispBufferSize=30;
-        dispChildCSize=200;
-        smfPlayer.dispEventMonitor=dispEventMonitor;
 
     };
     reader.readAsBinaryString(file);
@@ -257,12 +308,12 @@ function dispStatusMonitor(type, ch) {
                 light.className="label label-default";
                 clearInterval(midiSTimerId[type][ch]);
             }, 700);
-        }, latency);
+        }, latency-200);
     } 
 }
 
+var messageDispArea=document.getElementById("recvMsg");
 function dispEventMonitor(msg, type, latency) {
-    var messageDispArea=document.getElementById("recvMsg");
     var spanTag=document.createElement("span");
     spanTag.style.setProperty("margin", "0px 1px 0px 1px");
     spanTag.style.setProperty("color", "#ffffff");
@@ -284,7 +335,6 @@ function dispEventMonitor(msg, type, latency) {
             var ch=(parseInt(tmp.substr(1, 1), 16)+1).toString(10);
             if(type!="input") {
                 dispStatusMonitor("output", ch);
-                
             }
             // for event Monitor
             var color;
