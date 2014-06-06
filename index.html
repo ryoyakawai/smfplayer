@@ -8,11 +8,13 @@
     body { padding-top: 50px; }
     .toparea { margin: 10px 0px;}
     .tab-pane { margin: 20px; } 
-    .divInputArea{ margin: 2px 0px 2px 0px;}
+    .divInputArea{ margin: 2px 0px 2px 0px; }
     .floatLeft{ float: Left; }
     .clearBoth{ clear: both; }
-    .indicator{ margin: 4px 2px;}
-    .midiLabel{ margin: 4px 0px;}
+    .indicator{ margin: 4px 2px; }
+    .midiLabel{ margin: 4px 0px; }
+    .btn.double{ padding-top:23px; padding-bottom:23px; }
+    .ch-disp{ position:relative; top:1px; left:8px; }
     </style>
 
     <title>Standard MIDI File Plyer</title>
@@ -20,29 +22,53 @@
 
   <body>
 
-    <div id="wrap" style="margin-top:0px;">
       <div class="navbar navbar-default navbar-fixed-top" id="navbar.bs">
+
         <div class="container">
           <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
             <a class="navbar-brand" href="#">Standard MIDI File Player</a>
           </div>
+          <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="https://github.com/ryoyakawai/smfplayer"><img src="images/Logos-Github-icon.png" width="20px"> Fork me on GitHub</a></li>
+            </ul>
+
+          </div>
         </div>
-        <a href="https://github.com/ryoyakawai/smfplayer" target="_blank" style="position: absolute; z-index:1; top: 0; right: 0; border: none;"><img src="images/forkme.png" alt="Fork me on GitHub" border="0"></a>
       </div>
       
+    <div id="wrap" style="margin-top:0px;">
       <div class="container" style="width:680px; padding:10px 0px 20px 0px; border: 0px #000000 solid;">
         <div  id="midiplayer">
           <div style="float:right; width:60px; margin:12px 0px 0px 5px;"><button type="button" class="btn btn-warning" style="height:60px;visibility:hidden;" id="panic">Panic</button></div>
           
           <div class="divInputArea" style="width:610px; padding:0px 0px 0px 10px; margin:0px 0px 10px 0px;">
             <div style="padding:5px 0px 10px 0px;"><span class="label label-default">Select MIDI Output Device</span></div>
+
             <div class="input-group input-group">
-              <span class="input-group-addon"><span  id="midiinicon" class="glyphicon glyphicon-log-out"></span></span>
+              <span class="input-group-addon"><span id="midiinicon" class="glyphicon glyphicon-log-out"></span></span>
               <select id="midiOutSel" type="text" class="form-control input"></select>
               <span class="input-group-btn">
                 <button class="btn btn-primary" id="midiOutSelB" type="button" disabled="disabled">Select</button>
               </span>
             </div><!-- /.input-group .input-group -->
+
+            <div class="input-group input-group">
+              <span class="input-group-addon"><span id="midiinicon" class="glyphicon glyphicon-log-in"></span></span>
+              <input id="inputCh" type="number" class="form-control input" min="1" max="16" value="1" style="position:absolute; left:85px; border-radius:5px; width:60px;"></input>
+              <h4><span class="label label-default ch-disp">ch</span></h4>
+              <select id="midiInSel" type="text" class="form-control input" style="position:absolute; top:34px; width:495px;"></select>
+              <span class="input-group-btn" style="">
+                <button class="btn btn-primary double" id="midiInSelB" type="button" disabled="disabled">Select</button>
+              </span>
+            </div><!-- /.input-group .input-group -->
+
             <div style="width:10px;"></div>
           </div>
 

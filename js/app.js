@@ -36,13 +36,39 @@ var webMidiLinkSynth=[
 ];
 
 // Web MIDI API
-var inputs, outputs, midiout;
+var inputs, outputs, midiin, midiout;
 var oct=0;
 window.onload=function() {
     navigator.requestMIDIAccess({sysex: true}).then(scb, ecb);
 };
 function scb(access) {
     var midi=access;
+
+
+    // for midi in
+    inputs=midi.inputs();
+    var misel=document.getElementById("midiInSel");
+    var options=new Array();
+    for(var i=0; i<inputs.length; i++) {
+        misel.options[i]=new Option(inputs[i]["name"], i);
+    }
+    document.querySelector("#midiInSelB").removeAttribute("disabled");
+    document.querySelector("#midiInSelB").addEventListener("mousedown", function(event){
+        var idx=document.getElementById("midiInSel").value;
+        midiin=inputs[idx];
+        midiin.onmidimessage=function(event){
+            var ch=(document.getElementById("inputCh").value+1).toString(16);
+            var fb0=event.data[0].toString(16).shift();
+            var fb1=event.data[0].toString(16).pop();
+            var fb=fb0+ch;
+            var msg=[fb, event.data[1], event.data[2]];
+            console.log("[Recieved MIDI Msg]", msg);
+            midiout.send(msg);
+        };
+    });
+    
+
+    // for midi out
     outputs=midi.outputs();
     var mosel=document.getElementById("midiOutSel");
     var options=new Array();
