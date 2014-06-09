@@ -116,7 +116,8 @@ function scb(access) {
 
         document.addEventListener("midi-ch-update", function(event){
             if(useEventMonitor==true) dispEventMonitor(event.detail.msg, event.detail.type, event.detail.latency);
-            dispStatusMonitor("output", parseInt(parseInt(event.detail.msg[0], 16).toString(16).substr(1, 1), 16)+1 );
+            var ch=parseInt(event.detail.msg[0].toString(16).substr(1, 1), 16)+1;
+            dispStatusMonitor("output", ch);
         });
         
         fireEvent("change", "#inputCh");
@@ -178,6 +179,8 @@ function scb(access) {
         smfPlayer=new SmfPlayer(midiout);
         smfPlayer.changeUiStop=function() {
             document.getElementById("midistartB").className="glyphicon glyphicon-play";
+            document.getElementById("play-indicator").className=
+                document.getElementById("play-indicator").className.replace(" on", "");
         };
 
     });
@@ -215,7 +218,7 @@ document.getElementById("recvMsg").addEventListener("mousedown", function(event)
         } else {
             dc.className+=" off";
         }
-        setTimeout(function(){ document.getElementById("recvMsg").style.setProperty("transition", "0s");}, 200);
+        setTimeout(function(){ dc.style.setProperty("transition", "0.0s");}, 200);
     }, 400);
 });
 
@@ -267,6 +270,7 @@ document.getElementById("midistart").addEventListener("click", function() {
     var midistartB=document.getElementById("midistartB");
     if(midistartB.classList.contains("glyphicon-play")) {
         document.getElementById("play-indicator").className+=" on";
+        document.getElementById("recvMsg").innerHTML="";
         smfPlayer.setStartTime();
         if(stopped==true) {
             smfPlayer.changeFinished(false);

@@ -50,6 +50,18 @@ SmfParser.prototype ={
             this.totalTime=0;
 		        while (!trackStream.eof()) {
 			          var event = this.readEvent(trackStream);
+
+                // // // // //
+/*
+                for(var n=0, aaa=[]; n<event.raw.length; n++) {
+                    aaa.push(("000"+event.raw[n].toString(16)).slice(-2));
+                }
+                var ol= aaa[0]=="f0" ? aaa.length-1:aaa.length;
+                if(typeof event.length=="undefined") event.length="(n/a)";
+                document.getElementById("recvMsg").innerHTML+="[eventType] "+event.type+"  [Data Length(Actual/Declear)] "+ol+"/"+event.length+"  [message] "+aaa.join(" ")+"<BR>";
+*/
+                // // // // //
+
 			          if(event!=null) {
                     tracks[i].push(event);
                     if(event.type=="channel") {
@@ -293,6 +305,7 @@ SmfParser.prototype ={
 				         event.type = 'sysEx';
 				         var length = stream.readVarInt();
 				         event.data = stream.read(length);
+                 event.length=length;
 			           //event.raw = [ 0xf0, length ];
 			           event.raw = [ 0xf0 ];
                  event.raw=event.raw.concat(stream.convertBinHex(event.data, length));
@@ -301,6 +314,7 @@ SmfParser.prototype ={
 				         event.type = 'dividedSysEx';
 				         var length = stream.readVarInt();
 				         event.data = stream.read(length);
+                 event.length=length;
 			           event.raw = [ 0xf7, event.data ];
 				         return event;
 			       } else {

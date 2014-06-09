@@ -275,7 +275,7 @@ SmfPlayer.prototype={
 
     allSoundOff: function () {
         for(var i=0; i<16; i++) {
-            var fb="0xb"+i.toString(16);
+            var fb=parseInt("0xb"+i.toString(16), 16);
             this._sendToDevice([fb, 0x78, 0x00], this.startTime+this.eventTime);
         }
     },
