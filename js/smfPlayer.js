@@ -11,6 +11,7 @@
 var SmfPlayer = function(output) {
     this.mOut=output;
     this.nsx1Mode=false;
+    this.rsrv=[];
 };
 
 SmfPlayer.prototype={
@@ -165,6 +166,7 @@ SmfPlayer.prototype={
                 break;
               case "channel":
               case "sysEx":
+              case "dividedSysEx":
                 var sendFl=true;
                 if(event.type=="sysEx") {
                     var gsSysEx=[0xF0, 0x41, 0x10, 0x42, 0x12];
@@ -174,14 +176,34 @@ SmfPlayer.prototype={
                         console.info("[Skip GS SYSEX] ", out.join(" "));
                     }
                 }
+
+                // for dividedSysEx
+                if(event.type=="sysEx") {
+                    if(event.raw[0]==0xf0 && event.raw[event.raw.length-1]!=0xf7) {
+                        this.rsrv=event.raw;
+                        sendFl=false;
+                    }
+                }
+                if(event.type=="dividedSysEx") {
+                    event.raw.shift();
+                    console.log(event.raw, this.rsrv);
+                    Array.prototype.push.apply(this.rsrv, event.raw);
+                    if(this.rsrv[this.rsrv.length-1]==0xf7) {
+                        event.raw=this.rsrv;
+                        this.rsrv=[];
+                    } else {
+                        sendFl=false;
+                    }
+                }
+
                 /*
                 // disp send midi message
                 var out=[];
                 var msg=event.raw;
                 for(var i=0; i<msg.length; i++) {
-                    out.push(msg[i].toString(16));
+                    out.push(("00"+msg[i].toString(16)).slice(-2));
                 }
-                console.log(this.eventTime, out.join(" "));
+                console.log(this.eventTime, sendFl, out.join(" "));
                 */
 
                 if(sendFl===true) this._sendToDevice(event.raw, this.startTime+this.eventTime);
