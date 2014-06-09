@@ -21,8 +21,8 @@
     .indicator span{ transition:0.1s; transition-timing-function:ease-out;}
     .midiLabel{ margin: 4px 0px; }
     .btn.double{ padding-top:23px; padding-bottom:23px; }
-    .ch-disp{ position:relative; font-size:14px; top:10px; left:8px; }
-    .pg-disp{ position:relative; font-size:14px; top:10px; left:100px; }
+    .ch-disp{ position:relative; font-size:14px; top:10px; left:4px; }
+    .pg-disp{ position:relative; font-size:14px; top:10px; left:80px; transition:0.5s;}
     .midiFileList{ width:290px; border-radius:5px; padding:3px; border-color:#dddddd; transition:0.5s; }
     .eventMonitorArea{ margin: 2px 0px 2px 0px; width: 580px; height:320px; padding: 6px; border: 1px solid #0f0f0f; border-radius:5px; 
                       word-wrap:break-word; overflow: auto; font-family:Courier, monospace; background-color:#000; margin:0px auto;  transition-timing-function:ease-in-out; }
@@ -73,25 +73,29 @@
     <div id="wrap" style="margin-top:0px;">
       <div class="container" style="width:680px; padding:10px 0px 20px 0px; border: 0px #000000 solid;">
         <div  id="midiplayer">
-          <div style="float:right; width:60px; margin:12px 0px 0px 5px;"><button type="button" class="btn btn-warning" style="position:relative; top:14px; left:-66px; width:90px; height:102px; transition:0.5s; opacity:0.3; border:1px solid rgba(220, 220, 220, 0.4); z-index:3" disabled="disabled" id="panic">Panic</button></div>
+          <div style="float:right; width:60px; margin:12px 0px 0px 5px;"><button type="button" class="btn btn-warning" style="position:relative; top:14px; left:-66px; width:90px; height:68px; transition:0.5s; opacity:0.3; border:1px solid rgba(220, 220, 220, 0.4); z-index:3" disabled="disabled" id="panic">Panic</button></div>
           
           <div class="divInputArea" style="width:610px; padding:0px 0px 0px 10px; margin:0px 0px 10px 0px;">
             <div style="padding:5px 0px 10px 0px;"><span class="label label-default title">Select MIDI Output/Input Device</span></div>
 
+
             <div class="input-group input-group">
               <span class="input-group-addon"><span id="midiouticon" class="glyphicon glyphicon-log-out"></span></span>
-              <select id="midiOutSel" type="text" class="form-control input"></select>
-              <span class="input-group-btn">
-                <button class="btn btn-primary" id="midiOutSelB" type="button" disabled="disabled" style="visibility:hidden;">Select</button>
+              <input id="outputCh" type="number" class="form-control input" min="1" max="16" value="1" style="position:absolute; left:86px; border-radius:5px; width:60px;" disabled="disabled"></input>
+              <select id="prgChange" class="form-control input" style="position:absolute; left:210px; border-radius:5px; width:324px;" disabled="disabled"></select>
+              <span class="label label-default title ch-disp">CH</span>
+              <span class="label label-default title pg-disp">PG#</span>
+              <select id="midiOutSel" type="text" class="form-control input" style="position:absolute; top:34px; width:495px;"></select>
+              <span class="input-group-btn" style="">
+                <button class="btn btn-primary double" id="midiOutSelB" type="button" disabled="disabled" style="visibility:hidden;">Select</button>
               </span>
+
             </div><!-- /.input-group .input-group -->
 
             <div class="input-group input-group">
               <span class="input-group-addon"><span id="midiinicon" class="glyphicon glyphicon-log-in"></span></span>
-              <input id="inputCh" type="number" class="form-control input" min="1" max="16" value="1" style="position:absolute; left:93px; border-radius:5px; width:60px;"></input>
-              <select id="prgChange" class="form-control input" style="position:absolute; left:230px; border-radius:5px; width:304px;"></select>
+              <input id="inputCh" type="number" class="form-control input" min="1" max="16" value="1" style="position:absolute; left:86px; border-radius:5px; width:60px;" disabled="disabled"></input>
               <span class="label label-default title ch-disp">CH</span>
-              <span class="label label-default title pg-disp">PG#</span>
               <select id="midiInSel" type="text" class="form-control input" style="position:absolute; top:34px; width:495px;"></select>
               <span class="input-group-btn" style="">
                 <button class="btn btn-primary double" id="midiInSelB" type="button" disabled="disabled" style="visibility:hidden;">Select</button>
@@ -127,40 +131,40 @@
               <div style="padding:0px 0px 14px 0px;"><span class="label label-default title">Status Monitor</span></div>
               <div style="margin:0px auto; width:620px;">
                 <div class="floatLeft indicator"><h4 style="margin:0px 0px 0px 25px;"><span class="label label-default" style="position:relative; top:-4px; background-color:#eeeeee; border:1px solid #cccccc; color:#999999;"><span class="glyphicon glyphicon-off"></span></span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin1" class="label label-success indi-light">1</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin2" class="label label-success indi-light">2</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin3" class="label label-success indi-light">3</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin4" class="label label-success indi-light">4</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin5" class="label label-success indi-light">5</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin6" class="label label-success indi-light">6</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin7" class="label label-success indi-light">7</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin8" class="label label-success indi-light">8</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin9" class="label label-success indi-light">9</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin10" class="label label-success indi-light">10</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin11" class="label label-success indi-light">11</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin12" class="label label-success indi-light">12</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin13" class="label label-success indi-light">13</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin14" class="label label-success indi-light">14</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin15" class="label label-success indi-light">15</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin16" class="label label-success indi-light">16</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin0" class="label label-success indi-light">1</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin1" class="label label-success indi-light">2</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin2" class="label label-success indi-light">3</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin3" class="label label-success indi-light">4</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin4" class="label label-success indi-light">5</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin5" class="label label-success indi-light">6</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin6" class="label label-success indi-light">7</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin7" class="label label-success indi-light">8</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin8" class="label label-success indi-light">9</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin9" class="label label-success indi-light">10</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin10" class="label label-success indi-light">11</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin11" class="label label-success indi-light">12</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin12" class="label label-success indi-light">13</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin13" class="label label-success indi-light">14</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin14" class="label label-success indi-light">15</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiin15" class="label label-success indi-light">16</span></h4></div>
                 <div class="clearBoth" style="height:5px;"></div>
                 <div class="floatLeft indicator"><h4 style="position:relative; top:-4px; margin: 0px 0px 0px 25px;" style="margin-top:0px;"><span class="label label-default" style="background-color:#eeeeee; border:1px solid #cccccc;"><span class="glyphicon glyphicon-log-out" style="color:#5bc0de;"></span></span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout1" class="label label-default">1</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout2" class="label label-default">2</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout3" class="label label-default">3</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout4" class="label label-default">4</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout5" class="label label-default">5</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout6" class="label label-default">6</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout7" class="label label-default">7</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout8" class="label label-default">8</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout9" class="label label-default">9</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout10" class="label label-default">10</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout11" class="label label-default">11</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout12" class="label label-default">12</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout13" class="label label-default">13</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout14" class="label label-default">14</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout15" class="label label-default">15</span></h4></div>
-                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout16" class="label label-default">16</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout0" class="label label-default">1</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout1" class="label label-default">2</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout2" class="label label-default">3</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout3" class="label label-default">4</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout4" class="label label-default">5</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout5" class="label label-default">6</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout6" class="label label-default">7</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout7" class="label label-default">8</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout8" class="label label-default">9</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout9" class="label label-default">10</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout10" class="label label-default">11</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout11" class="label label-default">12</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout12" class="label label-default">13</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout13" class="label label-default">14</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout14" class="label label-default">15</span></h4></div>
+                <div class="floatLeft indicator"><h4 style="margin:0px;"><span id="midiout15" class="label label-default">16</span></h4></div>
               </div>
             </div>
             <br class="clearBoth">

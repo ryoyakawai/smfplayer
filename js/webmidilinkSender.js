@@ -25,11 +25,15 @@ function Synth() {
         } else {
             var iframe=document.createElement("iframe");
             iframe.src=url;
-            iframe.height=200;
+            iframe.height=0;
+            setTimeout(function(){
+                iframe.height=200;
+            }, 5);
             iframe.width=650;
             iframe.style.setProperty("border", "1px solid #ddd");
             iframe.style.setProperty("margin", "20px");
             iframe.style.setProperty("border-radius", "5px");
+            iframe.style.setProperty("transition", "0.5s");
             iframe.id="sy01";
             elem.innerHTML="";
             elem.appendChild(iframe);

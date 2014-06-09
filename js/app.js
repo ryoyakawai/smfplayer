@@ -18,8 +18,9 @@ var dispMsgBuffer=[];
 var dispBufferSize=30;
 var dispChildCSize=200;
 var timerId;
-var latency=1200;
+var latency=2800;
 var worker;
+var prgNo=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var useEventMonitor=false;
 var webMidiLinkSynth=[
     {
@@ -50,14 +51,14 @@ function scb(access) {
     var misel=document.getElementById("midiInSel");
     var options=new Array();
     misel.options[0]=new Option("(Select MIDI Input Device)", "");
-    for(var i=1; i<inputs.length; i++) {
-        misel.options[i]=new Option(inputs[i-1]["name"], i-1);
+    for(var i=0; i<inputs.length; i++) {
+        misel.options[i+1]=new Option(inputs[i]["name"], i);
     }
     document.querySelector("#midiInSelB").removeAttribute("disabled");
     //document.querySelector("#midiInSelB").addEventListener("mousedown", function(event){
     document.querySelector("#midiInSel").addEventListener("change", function(event){
-        //document.getElementById("midiInSelB").setAttribute("disabled", "disabled");
-        //document.getElementById("midiInSel").setAttribute("disabled", "disabled");
+        document.getElementById("inputCh").removeAttribute("disabled");
+
         document.getElementById("midiinicon").style.setProperty("color", "#5bc0de");
         for(var i=0; i<inputs.length; i++) {
             inputs[i].onmidimessage=function() {
@@ -83,49 +84,50 @@ function scb(access) {
             //document.getElementById("prgChange").value=0;
             //midiout.send(["0xc"+ch, 0]);
         }
-
-        if(typeof outputs[document.getElementById("midiOutSel").value]=="object") {
-            if(ch==0
-               && outputs[document.getElementById("midiOutSel").value].name.match(/NSX\-39/)) {
-                document.getElementById("prgChange").style.setProperty("visibility", "hidden");
-                document.querySelector(".pg-disp").innerHTML="eVocaloid";
-            } else {
-                document.getElementById("prgChange").style.setProperty("visibility", "visible");
-                document.querySelector(".pg-disp").innerHTML="PG#";
-            }
-        }
-
     });
+    
     
     // for midi out
     outputs=midi.outputs();
     var mosel=document.getElementById("midiOutSel");
     var options=new Array();
     mosel.options[0]=new Option("(Select MIDI Input Device)", "");
-    for(var i=1; i<outputs.length; i++) {
-        mosel.options[i]=new Option(outputs[i-1]["name"], i-1);
+    for(var i=0; i<outputs.length; i++) {
+        mosel.options[i+1]=new Option(outputs[i]["name"], i);
     }
-    for(var i=0; i<webMidiLinkSynth.length; i++) {
-        mosel.options[mosel.options.length]=new Option(webMidiLinkSynth[i].name, mosel.options.length);
+    for(var i=0, l=mosel.options.length; i<webMidiLinkSynth.length; i++) {
+        mosel.options[l+i]=new Option(webMidiLinkSynth[i].name, l+i-1);
     }
     document.querySelector("#midiOutSelB").removeAttribute("disabled");
     
     //document.getElementById("midiOutSelB").addEventListener("click", function() {
     document.getElementById("midiOutSel").addEventListener("change", function() {
         var port=document.getElementById("midiOutSel").value;
+        document.getElementById("outputCh").removeAttribute("disabled");
+        document.getElementById("prgChange").removeAttribute("disabled");
+        
+        for(var i=0; i<chInfo.length; i++){
+            chInfo[i].on=true;
+            document.getElementById("midiin"+i).className="label label-success";
+            fireEvent("mousedwon", "#midiin"+i);
+        }
+        
 
         document.addEventListener("midi-ch-update", function(event){
             if(useEventMonitor==true) dispEventMonitor(event.detail.msg, event.detail.type, event.detail.latency);
-            var ch=parseInt(event.detail.msg[0].toString(16).substr(1, 1), 16)+1;
+            var ch=parseInt(event.detail.msg[0].toString(16).substr(1, 1), 16);
+            var sb=event.detail.msg[0].toString(16).substr(0, 1);
+            if(sb=="c") {
+                prgNo[ch]=parseInt(event.detail.msg[1]);
+                fireEvent("change", "#outputCh");
+            }
+            
             dispStatusMonitor("output", ch);
         });
         
-        fireEvent("change", "#inputCh");
-        if(!document.getElementById("midiin1").classList.contains("label-success")) {
-            fireEvent("mousedown", "#midiin1");
-        }
+        fireEvent("change", "#outputCh");
         
-        if(port>=outputs.length) {
+        function setWebMIDILink(){
             var sdata=webMidiLinkSynth[port-outputs.length];
             synth.Load(sdata.url, sdata.id, sdata.size, "webmidilink");
             midiout={
@@ -148,16 +150,27 @@ function scb(access) {
                 }
                 var out="midi,"+msg.join(",");
                 synth.send(out, aTime);
-                
+                fireEvent("change", "#outputCh");
             };
-        } else {
-            midiout=outputs[port];
-            if(midiout.name.match(/NSX\-39/)) {
-                fireEvent("mousedown", "#midiin1");
-            }
-            
         }
 
+        var timer=0;
+        if(document.getElementById("webmidilink").innerHTML!="") {
+            timer=500;
+            document.getElementById("sy01").setAttribute("height", "0px");
+            document.getElementById("sy01").style.setProperty("opacity", "0");
+            setTimeout(function(){
+                document.getElementById("webmidilink").innerHTML="";
+            }, timer);
+        }
+        if(port>=outputs.length) {
+            setTimeout(function(){
+                setWebMIDILink();
+            }, timer);
+        } else {
+            midiout=outputs[port];
+        }
+        
         //document.getElementById("midiOutSelB").setAttribute("disabled", "disabled");
         //document.getElementById("midiOutSel").setAttribute("disabled", "disabled");
         document.getElementById("midiouticon").style.setProperty("color", "#5bc0de");
@@ -181,16 +194,46 @@ function scb(access) {
             document.getElementById("midistartB").className="glyphicon glyphicon-play";
             document.getElementById("play-indicator").className=
                 document.getElementById("play-indicator").className.replace(" on", "");
-        };
-
+        };        
+    });
+    document.getElementById("outputCh").addEventListener("change", function(event){
+        var ch=(parseInt(event.target.value, 10)-1).toString(16);
+        var val=document.getElementById("midiOutSel").value;
+        
+        document.getElementById("prgChange").style.setProperty("visibility", "visible");
+        document.querySelector(".pg-disp").innerHTML="PG#";
+        var iCh=parseInt(ch, 16);
+        if(iCh!=9) {
+            addPrgList("instruments", prgNo[iCh]);
+            document.getElementById("prgChange").value=prgNo[iCh];
+        } else {
+            addPrgList("drums", prgNo[iCh]);
+        }
+        
+        if(typeof outputs[val]=="object") {
+            if(ch==0 && outputs[val].name.match(/NSX\-39|eVY1/)){
+                document.getElementById("prgChange").style.setProperty("visibility", "hidden");
+                document.querySelector(".pg-disp").innerHTML="eVocaloid";
+                chInfo[0].on=false;
+                document.getElementById("midiin0").className="label label-default";
+            }
+        }
+        //fireEvent("mousedown", "#midiin0");
+        
     });
     // add program change
-    var el=document.getElementById("prgChange");
-    for(var i=0; i<voiceList.gmVoiceList.instruments.length; i++) {
-        el.options[i]=new Option((i+1)+": "+voiceList.gmVoiceList.instruments[i], i);
+    addPrgList("instruments", 0);
+    function addPrgList(type, sel) {
+        var el=document.getElementById("prgChange");
+        el.innerHTML="";
+        el.options=[];
+        for(var i=0; i<voiceList.gmVoiceList[type].length; i++) {
+            el.options[i]=new Option((i+1)+": "+voiceList.gmVoiceList[type][i], i);
+            if(i==sel) el.options[i].selected=true;
+        }
     }
-    el.addEventListener("change", function(event){
-        var mc=(parseInt(document.getElementById("inputCh").value, 10)-1).toString(16);
+    document.getElementById("prgChange").addEventListener("change", function(event){
+        var mc=(parseInt(document.getElementById("outputCh").value, 10)-1).toString(16);
         var idx=parseInt(event.target.value, 10);
         var msg=["0xc"+mc, idx];
         if(typeof midiout=="object") {
@@ -429,7 +472,7 @@ var chInfo=[
     {"on":true}, {"on":true}, {"on":true}, {"on":true}
 ];
 for(var i=0; i<chInfo.length; i++) {
-    var Idx=i+1;
+    var Idx=i;
     document.querySelector("#midiin"+Idx).addEventListener("mouseover", function(event){
         var id=event.target.id;
         document.querySelector("#"+id).style.cursor="pointer";
@@ -440,8 +483,9 @@ for(var i=0; i<chInfo.length; i++) {
     });
     document.querySelector("#midiin"+Idx).addEventListener("mousedown", function(event){
         var id=event.target.id;
-        var chNo=parseInt(id.replace("midiin", ""))-1;
+        var chNo=parseInt(id.replace("midiin", ""));
         var elem=document.querySelector("#"+id);
+
         if(chInfo[chNo].on==true) {
             chInfo[chNo].on=false;
             elem.className="label label-default";
