@@ -11,8 +11,6 @@
 var SmfPlayer = function(output) {
     this.mOut=output;
     this.nsx1Mode=false;
-    this.rsrv=[];
-    this.masterVol=100;
 };
 
 SmfPlayer.prototype={
@@ -167,7 +165,6 @@ SmfPlayer.prototype={
                 break;
               case "channel":
               case "sysEx":
-              case "dividedSysEx":
                 var sendFl=true;
                 if(event.type=="sysEx") {
                     var gsSysEx=[0xF0, 0x41, 0x10, 0x42, 0x12];
@@ -177,34 +174,14 @@ SmfPlayer.prototype={
                         console.info("[Skip GS SYSEX] ", out.join(" "));
                     }
                 }
-
-                // for dividedSysEx
-                if(event.type=="sysEx") {
-                    if(event.raw[0]==0xf0 && event.raw[event.raw.length-1]!=0xf7) {
-                        this.rsrv=event.raw;
-                        sendFl=false;
-                    }
-                }
-                if(event.type=="dividedSysEx") {
-                    event.raw.shift();
-                    console.log(event.raw, this.rsrv);
-                    Array.prototype.push.apply(this.rsrv, event.raw);
-                    if(this.rsrv[this.rsrv.length-1]==0xf7) {
-                        event.raw=this.rsrv;
-                        this.rsrv=[];
-                    } else {
-                        sendFl=false;
-                    }
-                }
-
                 /*
                 // disp send midi message
                 var out=[];
                 var msg=event.raw;
                 for(var i=0; i<msg.length; i++) {
-                    out.push(("00"+msg[i].toString(16)).slice(-2));
+                    out.push(msg[i].toString(16));
                 }
-                console.log(this.eventTime, sendFl, out.join(" "));
+                console.log(this.eventTime, out.join(" "));
                 */
 
                 if(sendFl===true) this._sendToDevice(event.raw, this.startTime+this.eventTime);
@@ -240,12 +217,8 @@ SmfPlayer.prototype={
             if(chInfo[ch].on==false) {
                 return;
             }
-            if(sb1==9) {
-                var velo=parseInt((this.masterVol/100)*parseInt(msg[2]), 10);
-                msg[2]=velo;
-            }
         }
-        this.mOut.send(msg, time+this.latency);
+        //this.mOut.send(msg, time+this.latency);
 
     },
 
@@ -283,10 +256,7 @@ SmfPlayer.prototype={
     },
     
     dispEventMonitor: function(msg, type, latency) {
-        var e=document.createEvent('HTMLEvents');
-        e.initEvent("midi-ch-update", true, true);
-        e.detail={"msg":msg, "type":type, "latency": latency};
-        document.dispatchEvent(e);
+        //console.log('[TEST] ', msg);
     },
 
     changeFinished: function(status) {
@@ -302,7 +272,7 @@ SmfPlayer.prototype={
 
     allSoundOff: function () {
         for(var i=0; i<16; i++) {
-            var fb=parseInt("0xb"+i.toString(16), 16);
+            var fb="0xb"+i.toString(16);
             this._sendToDevice([fb, 0x78, 0x00], this.startTime+this.eventTime);
         }
     },

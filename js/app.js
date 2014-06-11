@@ -20,6 +20,7 @@ var dispChildCSize=200;
 var timerId;
 var latency=2800;
 var worker;
+var masterVol=1;
 var prgNo=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var useEventMonitor=false;
 var webMidiLinkSynth=[
@@ -146,6 +147,9 @@ function scb(access) {
                 if(typeof msg=="object") {
                     for(var i=0; i<msg.length; i++) {
                         msg[i]=msg[i].toString(16).replace("0x", "");
+                        if(msg[0].substr(1, 1)=="9") {
+                            msg[2]=((masterVol/100)*parseInt(msg[2])).toString(16);
+                        }
                     }
                 }
                 var out="midi,"+msg.join(",");
@@ -165,6 +169,7 @@ function scb(access) {
         }
         if(port>=outputs.length) {
             setTimeout(function(){
+                console.log("[set webmidilink]");
                 setWebMIDILink();
             }, timer);
         } else {
@@ -189,12 +194,15 @@ function scb(access) {
             }
         });
 
-        smfPlayer=new SmfPlayer(midiout);
-        smfPlayer.changeUiStop=function() {
-            document.getElementById("midistartB").className="glyphicon glyphicon-play";
-            document.getElementById("play-indicator").className=
-                document.getElementById("play-indicator").className.replace(" on", "");
-        };        
+        setTimeout(function(){
+            smfPlayer=new SmfPlayer(midiout);
+            smfPlayer.masterVol=masterVol;
+            smfPlayer.changeUiStop=function() {
+                document.getElementById("midistartB").className="glyphicon glyphicon-play";
+                document.getElementById("play-indicator").className=
+                    document.getElementById("play-indicator").className.replace(" on", "");
+            };
+        }, timer);
     });
     document.getElementById("outputCh").addEventListener("change", function(event){
         var ch=(parseInt(event.target.value, 10)-1).toString(16);
@@ -267,6 +275,8 @@ document.getElementById("recvMsg").addEventListener("mousedown", function(event)
 
 
 
+
+
 // midi file player
 var smfPlayer, parsedMidi=[];
 var smfParser = new SmfParser();
@@ -305,6 +315,12 @@ function fileLoad(event) {
     return false;
 };
 
+
+// master volume
+document.getElementById('master-vol').addEventListener("change", function(event){
+    masterVol=event.target.value;
+    if(typeof smfPlayer=="object") smfPlayer.masterVol=masterVol;
+});
 
 
 

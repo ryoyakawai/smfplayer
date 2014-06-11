@@ -4,6 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/css/bootstrap.css">
     <link rel="stylesheet" href="css/sticky-footer-navbar.css">
+    <script src="./js/polymer.min.js"></script>
+		<link rel="import" href="webcomponents/webaudio-controls.html">
     <style type="text/css">
     body { padding-top: 50px; font-family: 'Nunito', sans-serif; }
     @font-face { 
@@ -69,6 +71,7 @@
           </div>
         </div>
       </div>
+
       
     <div id="wrap" style="margin-top:0px;">
       <div class="container" style="width:680px; padding:10px 0px 20px 0px; border: 0px #000000 solid;">
@@ -82,14 +85,14 @@
             <div class="input-group input-group">
               <span class="input-group-addon"><span id="midiouticon" class="glyphicon glyphicon-log-out"></span></span>
               <input id="outputCh" type="number" class="form-control input" min="1" max="16" value="1" style="position:absolute; left:86px; border-radius:5px; width:60px;" disabled="disabled"></input>
-              <select id="prgChange" class="form-control input" style="position:absolute; left:210px; border-radius:5px; width:324px;" disabled="disabled"></select>
+              <select id="prgChange" class="form-control input" style="position:absolute; left:210px; border-radius:5px; width:266px;" disabled="disabled"></select>
               <span class="label label-default title ch-disp">CH</span>
               <span class="label label-default title pg-disp">PG#</span>
-              <select id="midiOutSel" type="text" class="form-control input" style="position:absolute; top:34px; width:495px;"></select>
+              <select id="midiOutSel" type="text" class="form-control input" style="position:absolute; top:34px; width:437px;"></select>
               <span class="input-group-btn" style="">
                 <button class="btn btn-primary double" id="midiOutSelB" type="button" disabled="disabled" style="visibility:hidden;">Select</button>
               </span>
-
+              <webaudio-knob id="master-vol" style="position:absolute;left:485px;top:8px" src="wc-images/LittlePhatty.png" value="100" max="100" step="1" diameter="50" sprites="100" tooltip="Master Volume"></webaudio-knob>
             </div><!-- /.input-group .input-group -->
 
             <div class="input-group input-group">
