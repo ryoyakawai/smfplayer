@@ -13,6 +13,7 @@ var SmfPlayer = function(output) {
     this.nsx1Mode=false;
     this.rsrv=[];
     this.masterVol=100;
+    this.loop=false;
 };
 
 SmfPlayer.prototype={
@@ -236,16 +237,17 @@ SmfPlayer.prototype={
         var sb1=msg[0].toString(16).substr(0,1);
         var sb2=msg[0].toString(16).substr(1,1);
         var ch=parseInt(sb2, 16);
+        var m=msg;
         if(ch<16 && (sb1==8 || sb1==9)) {
             if(chInfo[ch].on==false) {
                 return;
             }
             if(sb1==9) {
-                var velo=parseInt((this.masterVol/100)*parseInt(msg[2]), 10);
-                msg[2]=velo;
+                this.mOut.send([msg[0], msg[1], parseInt((this.masterVol/100)*parseInt(msg[2]))], time+this.latency);
             }
+        } else {
+            this.mOut.send(msg, time+this.latency);
         }
-        this.mOut.send(msg, time+this.latency);
 
     },
 
@@ -263,6 +265,16 @@ SmfPlayer.prototype={
                 if(self.finished==true) {
                     clearInterval(self.timerId);
                     self.stopPlay.bind(self)();
+                    console.log(self.loop);
+                    if(self.loop==true) {
+                        console.log("here");
+
+                        var e=document.createEvent('MouseEvent');
+                        var b=document.querySelector("#midistart");
+                        e.initEvent("click", true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+                        b.dispatchEvent(e);
+                        
+                    }
                 }
             }, this.interval );
         }

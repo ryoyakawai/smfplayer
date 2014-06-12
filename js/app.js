@@ -76,6 +76,9 @@ function scb(access) {
             var fb1=event.data[0].toString(16).substr(1, 1);
             var fb="0x"+fb0+ch;
             var msg=[fb, event.data[1], event.data[2]];
+            if(fb0==9) {
+                msg[2]=parseInt((masterVol/100)*parseInt(msg[2]));
+            }
             midiout.send(msg);
         };
     });
@@ -145,16 +148,18 @@ function scb(access) {
                 var aTime;
                 aTime=time-(window.performance.now()-smfPlayer.startTime)-smfPlayer.startTime+smfPlayer.latency;
                 if(typeof msg=="object") {
+                    var m=msg;
                     for(var i=0; i<msg.length; i++) {
-                        msg[i]=msg[i].toString(16).replace("0x", "");
-                        if(msg[0].substr(1, 1)=="9") {
-                            msg[2]=((masterVol/100)*parseInt(msg[2])).toString(16);
-                        }
+                        m[i]=m[i].toString(16).replace("0x", "");
                     }
+                    if(m[0].substr(1, 1)=="9") {
+                        var out="midi,"+[msg[0], msg[1], ((masterVol/100)*parseInt(m[2])).toString(16)].join(",");
+                    } else {
+                        var out="midi,"+msg.join(",");
+                    }
+                    synth.send(out, aTime);
+                    fireEvent("change", "#outputCh");
                 }
-                var out="midi,"+msg.join(",");
-                synth.send(out, aTime);
-                fireEvent("change", "#outputCh");
             };
         }
 
@@ -330,6 +335,7 @@ document.getElementById("midistart").addEventListener("click", function() {
     if(midistartB.classList.contains("glyphicon-play")) {
         document.getElementById("play-indicator").className+=" on";
         document.getElementById("recvMsg").innerHTML="";
+        smfPlayer.loop=document.getElementById("play-loop").checked;
         smfPlayer.setStartTime();
         if(stopped==true) {
             smfPlayer.changeFinished(false);
