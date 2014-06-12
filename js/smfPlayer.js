@@ -242,9 +242,7 @@ SmfPlayer.prototype={
             if(chInfo[ch].on==false) {
                 return;
             }
-            if(sb1==9) {
-                this.mOut.send([msg[0], msg[1], parseInt((this.masterVol/100)*parseInt(msg[2]))], time+this.latency);
-            }
+            this.mOut.send([msg[0], msg[1], parseInt((this.masterVol/100)*parseInt(msg[2]))], time+this.latency);
         } else {
             this.mOut.send(msg, time+this.latency);
         }
