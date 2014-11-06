@@ -43,7 +43,22 @@ window.onload=function() {
 };
 function scb(access) {
     var midi=access;
-    outputs=midi.outputs();
+    if (typeof midi.inputs === "function") {
+        inputs=midi.inputs();
+        outputs=midi.outputs();
+    } else {
+        var inputIterator = midi.inputs.values();
+        inputs = [];
+        for (var o = inputIterator.next(); !o.done; o = inputIterator.next()) {
+            inputs.push(o.value);
+        }
+        var outputIterator = midi.outputs.values();
+        outputs = [];
+        for (var o = outputIterator.next(); !o.done; o = outputIterator.next()) {
+            outputs.push(o.value);
+        }
+    }
+
     var mosel=document.getElementById("midiOutSel");
     var options=new Array();
     for(var i=0; i<outputs.length; i++) {
