@@ -43,7 +43,7 @@
       
       <div class="container" style="width:680px; padding:10px 0px 20px 0px; border: 0px #000000 solid;">
         <div  id="midiplayer">
-          <div style="float:right; width:60px; margin:12px 0px 0px 5px;"><button type="button" class="btn btn-warning" style="height:60px;visibility:hidden;" id="panic">Panic</button></div>
+          <div style="float:right; width:60px; margin:12px 0px 0px 5px;"><button type="button" class="btn btn-warning" style="height:60px;visibility:hidden; opacity:0; transition:0.5s;" id="panic">Panic</button></div>
           
           <div class="divInputArea" style="width:610px; padding:0px 0px 0px 10px; margin:0px 0px 10px 0px;">
             <div style="padding:5px 0px 10px 0px;"><span class="label label-default">Select MIDI Output Device</span></div>
@@ -59,7 +59,9 @@
 
           <div id="webmidilink"></div>
           
-            <div id="whiteout" style="position:absolute; width:680px; height:680px; background:rgba(255, 255, 255, 0.9); paddingn:5px; z-index:2; border-radius:5px;"></div>
+            <div id="whiteout" style="position:absolute; width:680px; height:680px; background:rgba(255, 255, 255, 0.9); paddingn:5px; z-index:2; border-radius:5px; transition:0.5s;">
+              <div style="position:absolute; left:100px; top:50px; font-size:1.5em; font-weight:bold; padding:8px; border-radius:3px; color:#E0F7FA; background-color:#006064; box-shadow:rgba(113, 135, 164, 0.65098) 0px 0px 6px 3px;">Select MIDI Output Device from list above.</div>
+            </div>
           <div style="padding:10px;">
             <div id="filedroparea" class="divInputArea" style="margin:0px 0px 10px 0px; display:block;">
               <div style="padding:0px 0px 10px 0px;"><span class="label label-default">File Drop Area</span></div>

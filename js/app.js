@@ -109,8 +109,11 @@ function scb(access) {
         document.getElementById("midiOutSelB").setAttribute("disabled", "disabled");
         document.getElementById("midiOutSel").setAttribute("disabled", "disabled");
         
-        document.getElementById("whiteout").style.setProperty("display", "none");
+        document.getElementById("whiteout").style.setProperty("opacity", "0");
         document.getElementById("panic").style.setProperty("visibility", "visible");
+        setTimeout(function(){document.getElementById("whiteout").style.setProperty("display", "none");}, 500);
+        document.getElementById("panic").style.setProperty("visibility", "visible");
+        document.getElementById("panic").style.setProperty("opacity", "1");
         
         document.getElementById("panic").addEventListener("click", function(){
             for(var i=0; i<16; i++) {
