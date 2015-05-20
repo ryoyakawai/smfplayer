@@ -24,13 +24,13 @@ var webMidiLinkSynth=[
     {
         "id":"wml00", "version": 1, "manufacturer":"g200kg",
         "name":"[Experimental] GMPlayer (Web MIDI Link)",
-        "url":"http://www.g200kg.com/webmidilink/gmplayer/",
+        "url":"//www.g200kg.com/webmidilink/gmplayer/",
         "size":"width=600,height=600,scrollbars=yes,resizable=yes"
     },
     {
         "id":"wml01", "version": 1, "manufacturer":"Logue",
         "name":"[Experimental] SoundFont: Yamaha XG (Web MIDI Link)",
-        "url":"http://logue.github.io/smfplayer.js/wml.html",
+        "url":"//logue.github.io/smfplayer.js/wml.html",
         "size":"width=600,height=600,scrollbars=yes,resizable=yes"
     }
 ];
