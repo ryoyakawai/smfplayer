@@ -19,6 +19,11 @@
   </head>
 
   <body>
+    <script>
+    if (window.location.protocol !== 'https:' && window.location.hostname!='localhost') {
+        window.location = 'https://' + window.location.hostname + window.location.pathname + window.location.hash;
+    }
+    </script>
 
     <div id="wrap" style="margin-top:0px;">
       <div class="navbar navbar-default navbar-fixed-top" id="navbar.bs">
