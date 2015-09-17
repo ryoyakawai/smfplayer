@@ -24,7 +24,7 @@ var webMidiLinkSynth=[
     {
         "id":"wml00", "version": 1, "manufacturer":"g200kg",
         "name":"[Experimental] GMPlayer (Web MIDI Link)",
-        "url":"//www.g200kg.com/webmidilink/gmplayer/",
+        "url":"//webmusicdevelopers.appspot.com/webtg/gmplayer/index.html",//"//www.g200kg.com/webmidilink/gmplayer/",
         "size":"width=600,height=600,scrollbars=yes,resizable=yes"
     },
     {

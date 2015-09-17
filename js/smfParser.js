@@ -15,6 +15,7 @@ var SmfParser = function() {
 
 SmfParser.prototype ={
     parse: function(data) {
+        console.log(data);
         var stream=this.Stream(data);
         var tracks=[];
         var channels=[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];

@@ -242,7 +242,6 @@ SmfPlayer.prototype={
             }
         }
         this.mOut.send(msg, time+this.latency);
-
     },
 
 	  startPlay: function () {
