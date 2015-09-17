@@ -1,0 +1,12 @@
+{
+  "lang": "ja",
+  "name": "StandardMIDIFilePlayer",
+  "short_name": "SMFPlayer",
+  "icons": [{
+        "src": "./images/smfplayer-144x144.png",
+        "sizes": "144x144",
+        "type": "image/png"
+      }],
+  "start_url": "https://ryoyakawai.github.io/smfplayer/index.html",
+  "display": "standalone"
+}
