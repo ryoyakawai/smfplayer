@@ -1,5 +1,5 @@
 /* sw.js */
-var CACHE_NAME = 'webtg-gmplayer-cache';
+var CACHE_NAME = 'webtg-smfplayer-cache';
 var urlsToCache = [
     './index.html',
     './assets/js/jquery.js',
