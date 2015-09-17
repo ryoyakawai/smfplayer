@@ -16,7 +16,8 @@ var urlsToCache = [
     './js/webmidilinkSender.js',
     './js/app.js',
     './js/msgSendWorker.js',
-
+    './assets/fonts/glyphicons-halflings-regular.woff',
+    './assets/fonts/glyphicons-halflings-regular.ttf',
 ];
 
 self.addEventListener('install', function(event) {
