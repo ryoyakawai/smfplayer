@@ -283,28 +283,28 @@ function dispEventMonitor(msg, type, latency) {
             var color;
             switch(tmp.substr(0, 1).toLowerCase()) {
               case "8":
-                color="color:#ffffff; background-color:#00ffff;";
+                color="color:#ffffff; background-color:#23cdfd;";
                 break;
               case "9":
-                color="color:#ffffff; background-color:#0000ff;";
+                color="color:#ffffff; background-color:#071cd0;";
                 break;
               case "a":
-                color="color:#ff0000; background-color:#ffffff;";
+                color="color:#da1019; background-color:#ffffff;";
                 break;
               case "b":
-                color="color:#0000cd; background-color:#ffffff;";
+                color="color:#071cd0; background-color:#ffffff;";
                 break;
               case "c":
-                color="color:#ffffff; background-color:#ff0000;";
+                color="color:#ffffff; background-color:#da1019;";
                 break;
               case "d":
-                color="color:#008000; background-color:#ffffff;";
+                color="color:#0a6318; background-color:#ffffff;";
                 break;
               case "e":
-                color="color:#ffffff; background-color:#008000;";
+                color="color:#ffffff; background-color:#0a6318;";
                 break;
               case "f":
-                color="color:#ffffff; background-color:#ff69b4;";
+                color="color:#ffffff; background-color:#ef1984;";
                 break;
             default:
                 color="color:#ffffff; background-color:#000000;";
