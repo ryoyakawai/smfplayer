@@ -33,7 +33,13 @@ var webMidiLinkSynth=[
         "name":"[Experimental] SoundFont: Yamaha XG (Web MIDI Link)",
         "url":"//logue.github.io/smfplayer.js/wml.html",
         "size":"width=600,height=600,scrollbars=yes,resizable=yes"
-    }
+    },
+    {
+        "id":"wml02", "version": 1, "manufacturer":"Test",
+        "name":"[Experimental] Test",
+        "url":"//ryoyakawai.github.io/x-tonegenerator/piano/index.html",
+        "size":"width=600,height=600,scrollbars=yes,resizable=yes"
+     }
 ];
 
 // Web MIDI API
