@@ -35,8 +35,8 @@ var webMidiLinkSynth=[
         "size":"width=600,height=600,scrollbars=yes,resizable=yes"
     },
     {
-        "id":"wml02", "version": 1, "manufacturer":"Test",
-        "name":"[Experimental] Test",
+        "id":"wml02", "version": 1, "manufacturer":"RyoyaKawai",
+        "name":"[Experimental] Piano",
         "url":"//ryoyakawai.github.io/x-tonegenerator/piano/index.html",
         "size":"width=600,height=600,scrollbars=yes,resizable=yes"
      }
