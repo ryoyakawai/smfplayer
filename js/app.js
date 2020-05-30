@@ -31,7 +31,7 @@ var webMidiLinkSynth=[
     {
         "id":"wml01", "version": 1, "manufacturer":"Logue",
         "name":"[Experimental] SoundFont: Yamaha XG (Web MIDI Link)",
-        "url":"https://logue.github.io/smfplayer.js/wml.html",
+        "url":"https://logue.dev/smfplayer.js/wml.html",
         "size":"width=600,height=600,scrollbars=yes,resizable=yes"
     },
     {
