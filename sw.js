@@ -1,6 +1,6 @@
 /* sw.js */
 importScripts('serviceworker-cache-polyfill.js');
-var CACHE_NAME = 'smfplayer-cache-02';
+var CACHE_NAME = 'smfplayer-cache';
 var urlsToCache = [
     './index.html',
     './assets/js/jquery.js',

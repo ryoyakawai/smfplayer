@@ -24,22 +24,23 @@ var webMidiLinkSynth=[
     {
         "id":"wml00", "version": 1, "manufacturer":"g200kg",
         "name":"[Experimental] GMPlayer (Web MIDI Link)",
-        //"url":"https://webmusicdevelopers.appspot.com/webtg/gmplayer/index.html",
-        "url":"https://www.g200kg.com/webmidilink/gmplayer/",
+        "url":"//webmusicdevelopers.appspot.com/webtg/gmplayer/index.html",
+        //"url":"//www.g200kg.com/webmidilink/gmplayer/",
         "size":"width=600,height=600,scrollbars=yes,resizable=yes"
     },
     {
         "id":"wml01", "version": 1, "manufacturer":"Logue",
         "name":"[Experimental] SoundFont: Yamaha XG (Web MIDI Link)",
-        "url":"https://logue.dev/smfplayer.js/wml.html",
+        "url":"//logue.github.io/smfplayer.js/wml.html",
         "size":"width=600,height=600,scrollbars=yes,resizable=yes"
     },
-    {
+     {
         "id":"wml02", "version": 1, "manufacturer":"RyoyaKawai",
         "name":"[Experimental] Piano",
         "url":"https://ryoyakawai.github.io/x-tonegenerator/piano/index.html",
         "size":"width=600,height=600,scrollbars=yes,resizable=yes"
-     }
+    }
+
 ];
 
 // Web MIDI API
@@ -190,7 +191,7 @@ function fileLoad(event) {
 
 
 var stopped=false;
-document.getElementById("midistart").addEventListener("click", function() {
+document.getElementById("midistart").addEventListener("click", async function() {
     var midistartB=document.getElementById("midistartB");
     switch(midistartB.className) {
       case "glyphicon glyphicon-play":
@@ -202,6 +203,7 @@ document.getElementById("midistart").addEventListener("click", function() {
         midistartB.className="glyphicon glyphicon-pause";
         var Idx=document.getElementById("midiFileList").value;
         smfPlayer.init(parsedMidi[Idx].data, latency, parsedMidi[Idx].eventNo);
+        await smfPlayer.changeMasterVolume(10);
         smfPlayer.startPlay();
         break;
       case "glyphicon glyphicon-pause":
@@ -213,6 +215,36 @@ document.getElementById("midistart").addEventListener("click", function() {
         break;
     }
 });
+document.getElementById("midifadeout").addEventListener("mousedown", async function() {
+  await smfPlayer.changeMasterVolume(127)
+
+  let fadeDuration = 8 // in sec
+  let smfMasterVolume = { value: 127 }
+  let volume = 127 //smfMasterVolume.value
+  const slope = volume / (fadeDuration/1.27)
+  const timeFreq = 1000
+  let timeNow = 0
+  let fadeoutInterval = 0
+  if (fadeoutInterval!=0) return
+  fadeoutInterval = setInterval( async () => {
+    timeNow += timeFreq
+    volume = parseInt(volume) - parseInt(slope)
+    smfMasterVolume.value = parseInt(volume)
+    await smfPlayer.changeMasterVolume(smfMasterVolume.value)
+    if (volume<=0) {
+      setTimeout( async () => {
+        smfPlayer.allSoundOff()
+        smfPlayer.stopPlay()
+        stopped=true;
+        smfMasterVolume.value = 127
+      }, timeFreq + 100)
+      clearInterval(fadeoutInterval)
+      fadeoutInterval = 0
+    }
+  }, timeFreq)
+});
+
+
 document.getElementById("midiFileList").addEventListener("change", function() {
     for(var i=0; i<parsedMidi.length; i++) {
         parsedMidi[i].eventNo=0;

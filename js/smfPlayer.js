@@ -11,6 +11,7 @@
 var SmfPlayer = function(output) {
     this.mOut=output;
     this.nsx1Mode=false;
+    this.rsrv=[];
 };
 
 SmfPlayer.prototype={
@@ -39,22 +40,21 @@ SmfPlayer.prototype={
         this.eventNo=eventNo;
         this.posMoving=false;
 
-        
         this.getFirstEvent();
     },
     getFirstEvent: function() {
-        this.eventNo=0;
-        for (var i = 0; i < this.midiFile.tracks.length; i++) {
-		        this.trackStates[i] = {
-			          'nextEventIndex': 0,
-			          'ticksToNextEvent': (
-				            this.midiFile.tracks[i].length ?
-					              this.midiFile.tracks[i][0].deltaTime :
-					              null
-			          )
-		        };
-	      }
-        this._getNextEvent();
+      this.eventNo=0;
+      for (var i = 0; i < this.midiFile.tracks.length; i++) {
+        this.trackStates[i] = {
+          'nextEventIndex': 0,
+          'ticksToNextEvent': (
+            this.midiFile.tracks[i].length ?
+            this.midiFile.tracks[i][0].deltaTime :
+            null
+          )
+        };
+      }
+      this._getNextEvent();
     },
     moveEvent: function(type) {
         var playing=this.nowPlaying;
@@ -165,6 +165,7 @@ SmfPlayer.prototype={
                 break;
               case "channel":
               case "sysEx":
+              case "dividedSysEx":
                 var sendFl=true;
                 if(event.type=="sysEx") {
                     var gsSysEx=[0xF0, 0x41, 0x10, 0x42, 0x12];
@@ -174,14 +175,35 @@ SmfPlayer.prototype={
                         console.info("[Skip GS SYSEX] ", out.join(" "));
                     }
                 }
+
+                // for dividedSysEx
+                if(event.type=="sysEx") {
+                    if(event.raw[0]==0xf0 && event.raw[event.raw.length-1]!=0xf7) {
+                        this.rsrv=event.raw;
+                        sendFl=false;
+                    }
+                }
+                if(event.type=="dividedSysEx") {
+                    event.raw.shift();
+                    console.log(event.raw, this.rsrv);
+                    Array.prototype.push.apply(this.rsrv, event.raw);
+                    if(this.rsrv[this.rsrv.length-1]==0xf7) {
+                        event.raw=this.rsrv;
+                        this.rsrv=[];
+                    } else {
+                        sendFl=false;
+                    }
+                }
+
+                
                 /*
                 // disp send midi message
                 var out=[];
                 var msg=event.raw;
                 for(var i=0; i<msg.length; i++) {
-                    out.push(msg[i].toString(16));
+                    out.push(("00"+msg[i].toString(16)).slice(-2));
                 }
-                console.log(this.eventTime, out.join(" "));
+                console.log(this.eventTime, sendFl, out.join(" "));
                 */
 
                 if(sendFl===true) this._sendToDevice(event.raw, this.startTime+this.eventTime);
@@ -219,7 +241,6 @@ SmfPlayer.prototype={
             }
         }
         this.mOut.send(msg, time+this.latency);
-
     },
 
 	  startPlay: function () {
@@ -256,7 +277,6 @@ SmfPlayer.prototype={
     },
     
     dispEventMonitor: function(msg, type, latency) {
-        //console.log('[TEST] ', msg);
     },
 
     changeFinished: function(status) {
@@ -264,7 +284,19 @@ SmfPlayer.prototype={
         clearInterval(this.timerId);
     },
 
-    setStartTime: function () {
+    changeMasterVolume: async function(vol=102) {
+      if (vol>127) vol = 127
+      if (vol<0) vol = 0
+
+      const msg = [
+        0xF0, 0x7F, 0x7F, 0x04, 0x01,
+        0x00, vol,
+        0xF7
+      ]
+      await this._sendToDevice(msg, 0)
+  },
+
+  setStartTime: function () {
         this.startTime=window.performance.now();
         this.eventTime=0;
         console.log("[setStartTime]", this.startTime);
