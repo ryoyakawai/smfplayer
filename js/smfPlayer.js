@@ -40,22 +40,21 @@ SmfPlayer.prototype={
         this.eventNo=eventNo;
         this.posMoving=false;
 
-        
         this.getFirstEvent();
     },
     getFirstEvent: function() {
-        this.eventNo=0;
-        for (var i = 0; i < this.midiFile.tracks.length; i++) {
-		        this.trackStates[i] = {
-			          'nextEventIndex': 0,
-			          'ticksToNextEvent': (
-				            this.midiFile.tracks[i].length ?
-					              this.midiFile.tracks[i][0].deltaTime :
-					              null
-			          )
-		        };
-	      }
-        this._getNextEvent();
+      this.eventNo=0;
+      for (var i = 0; i < this.midiFile.tracks.length; i++) {
+        this.trackStates[i] = {
+          'nextEventIndex': 0,
+          'ticksToNextEvent': (
+            this.midiFile.tracks[i].length ?
+            this.midiFile.tracks[i][0].deltaTime :
+            null
+          )
+        };
+      }
+      this._getNextEvent();
     },
     moveEvent: function(type) {
         var playing=this.nowPlaying;
@@ -285,7 +284,19 @@ SmfPlayer.prototype={
         clearInterval(this.timerId);
     },
 
-    setStartTime: function () {
+    changeMasterVolume: async function(vol=102) {
+      if (vol>127) vol = 127
+      if (vol<0) vol = 0
+
+      const msg = [
+        0xF0, 0x7F, 0x7F, 0x04, 0x01,
+        0x00, vol,
+        0xF7
+      ]
+      await this._sendToDevice(msg, 0)
+  },
+
+  setStartTime: function () {
         this.startTime=window.performance.now();
         this.eventTime=0;
         console.log("[setStartTime]", this.startTime);

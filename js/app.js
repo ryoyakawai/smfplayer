@@ -184,7 +184,7 @@ function fileLoad(event) {
 
 
 var stopped=false;
-document.getElementById("midistart").addEventListener("click", function() {
+document.getElementById("midistart").addEventListener("click", async function() {
     var midistartB=document.getElementById("midistartB");
     switch(midistartB.className) {
       case "glyphicon glyphicon-play":
@@ -196,6 +196,7 @@ document.getElementById("midistart").addEventListener("click", function() {
         midistartB.className="glyphicon glyphicon-pause";
         var Idx=document.getElementById("midiFileList").value;
         smfPlayer.init(parsedMidi[Idx].data, latency, parsedMidi[Idx].eventNo);
+        await smfPlayer.changeMasterVolume(10);
         smfPlayer.startPlay();
         break;
       case "glyphicon glyphicon-pause":
@@ -207,6 +208,36 @@ document.getElementById("midistart").addEventListener("click", function() {
         break;
     }
 });
+document.getElementById("midifadeout").addEventListener("mousedown", async function() {
+  await smfPlayer.changeMasterVolume(127)
+
+  let fadeDuration = 8 // in sec
+  let smfMasterVolume = { value: 127 }
+  let volume = 127 //smfMasterVolume.value
+  const slope = volume / (fadeDuration/1.27)
+  const timeFreq = 1000
+  let timeNow = 0
+  let fadeoutInterval = 0
+  if (fadeoutInterval!=0) return
+  fadeoutInterval = setInterval( async () => {
+    timeNow += timeFreq
+    volume = parseInt(volume) - parseInt(slope)
+    smfMasterVolume.value = parseInt(volume)
+    await smfPlayer.changeMasterVolume(smfMasterVolume.value)
+    if (volume<=0) {
+      setTimeout( async () => {
+        smfPlayer.allSoundOff()
+        smfPlayer.stopPlay()
+        stopped=true;
+        smfMasterVolume.value = 127
+      }, timeFreq + 100)
+      clearInterval(fadeoutInterval)
+      fadeoutInterval = 0
+    }
+  }, timeFreq)
+});
+
+
 document.getElementById("midiFileList").addEventListener("change", function() {
     for(var i=0; i<parsedMidi.length; i++) {
         parsedMidi[i].eventNo=0;
