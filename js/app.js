@@ -253,6 +253,9 @@ document.getElementById("midiforward").addEventListener("mousedown", function() 
     smfPlayer.moveEvent("forward");
 });
 
+document.getElementById("midibackward").addEventListener("mousedown", function() {
+    smfPlayer.moveEvent("backward");
+});
 
 
 
