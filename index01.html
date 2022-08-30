@@ -1,0 +1,138 @@
+
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:url" content="https://ryoyakawai.github.io/smfplayer/index.html" />
+    <link rel="manifest" href="./manifest.json">
+    <meta property="og:title" content="SMFPlayer" />
+    <meta property="og:image" content="https://ryoyakawai.github.io/smfplayer/images/smfplayer-144x144.png" />
+    <meta property="og:description" content="This application is Standard MIDI File player on the Web. Even works on offline!" />
+    <meta property="og:site_name" content="SMFPlayer" />
+    <link rel="stylesheet" href="./md/material.green-light_green.min.css">
+    <link rel="stylesheet" href="./md/icon_family_material_icons.css">
+    <script src="./md/material.min.js"></script>
+    <link href="./md/family_roboto_mono.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,1,0" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="MIDI Message Viewer | Web Bluetooth and Web MIDI" />
+    <meta name="twitter:description" content="Web App to see MIDI message by BLE-MIDI or USB-MIDI">
+
+    <!-- Open Graph -->
+    <meta property="og:locale" content="ja_JP">
+    <meta property="og:type" content="summary">
+    <meta property="og:title" content="MIDI Message Viewer | Web Bluetooth and Web MIDI">
+    <meta property="og:description" content="Web App to see MIDI message by BLE-MIDI or USB-MIDI">
+    <meta property="og:url" content="https://ryoyakawai.com/apps/midimsgv/index.html">
+    <meta property="og:site_name" content="MIDI Message Viewer">
+  </head>
+  <body>
+    <div id="loading" class="loading">
+      <div>
+        <div class="lds-ripple"><div></div><div></div></div>
+      </div>
+      <br><br>
+      <div>Loading Standard MIDI File Player...</div>
+    </div>
+
+    <script type="module" href="./node_modules/x-webmidi/xwebmidi.js"></script>
+
+    <x-webmidirequestaccess id="x-webmidi" sysex input output></x-webmidirequestaccess>
+
+    <div class="content-parent">
+      <div class="content material-shadow">
+        <div class="title">Standard MIDI File Player</div>
+
+        <div class="select-area-parent">
+          <div class="system-button-area">
+            <div class="select-midi-device-area">
+              <div class="label-middle">OUTPUT:</div>
+              <div class="label-middle">
+                <select id="midiOutSel" type="text" class="select-midi-device"></select>
+              </div>
+              <div class="midi-device-set-area">
+                <span><button id="midiOutSelB" type="button" disabled="disabled" class="mdl-button mdl-js-button mdl-button--raised">SET</button></span>
+                <button class="mdl-button mdl-js-button mdl-button--icon panic-button"><span id="panic" class="material-symbols-outlined">🤯</span></button>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+        <div class="web-midi-link-area-parent">
+          <div id="webmidilink" class="web-midi-link-area"></div>
+        </div>
+
+        <div class="midi-file-drop-area-parent">
+          <div class="midi-file-drop-area">
+            <select id="midiFileList" size="5" style="width:290px; border-radius:5px; padding:3px; border-color:#dddddd;"></select>
+            <div><input type="file" id="fileimport" class="form-control" name="files[]" style="width:290px; margin:0px 10px 0px 0px; "></div>
+          </div>
+        </div>
+
+        <div class="midi-play-control-area-parent">
+          <button id="midizero" class="mdl-button mdl-js-button mdl-button--fab midi-play-ctrl-margin"><span class="material-symbols-outlined">skip_previous</span></button>
+          <button id="midibackward" class="mdl-button mdl-js-button mdl-button--fab midi-play-ctrl-margin"><span class="material-symbols-outlined">fast_rewind</span></button>
+          <button id="midistartB" class="mdl-button mdl-js-button mdl-button--fab midi-play-ctrl-margin"><span id="midistartB" class="material-symbols-outlined">play_arrow</span></button>
+          <button id="midiforward" class="mdl-button mdl-js-button mdl-button--fab midi-play-ctrl-margin"><span class="material-symbols-outlined">fast_forward</span></button>
+          <button id="midifadeout" class="mdl-button mdl-js-button mdl-button--fab midi-play-ctrl-margin"><span class="material-symbols-outlined">south_east</span></button>
+        </div>
+
+        <div class="midi-status-monitor-area-parent">
+          <div class="midi-status-monitor-area-button">
+            <div class="midi-status-head"><span class="material-symbols-outlined">volume_up</span></div>
+            <div id="midiin1" class="midi-status-button on">1</div>
+            <div id="midiin2" class="midi-status-button on">2</div>
+            <div id="midiin3" class="midi-status-button on">3</div>
+            <div id="midiin4" class="midi-status-button on">4</div>
+            <div id="midiin5" class="midi-status-button on">5</div>
+            <div id="midiin6" class="midi-status-button on">6</div>
+            <div id="midiin7" class="midi-status-button on">7</div>
+            <div id="midiin8" class="midi-status-button on">8</div>
+            <div id="midiin9" class="midi-status-button on">9</div>
+            <div id="midiin10" class="midi-status-button on">10</div>
+            <div id="midiin11" class="midi-status-button on">11</div>
+            <div id="midiin12" class="midi-status-button on">12</div>
+            <div id="midiin13" class="midi-status-button on">13</div>
+            <div id="midiin14" class="midi-status-button on">14</div>
+            <div id="midiin15" class="midi-status-button on">15</div>
+            <div id="midiin16" class="midi-status-button on">16</div>
+          </div>
+        </div>
+
+
+        <div class="midi-recv-msg-area-parent">
+          <div id="recvMsg" class="divInputArea" style="width: 540px; height:320px; padding: 6px; border: 1px solid #0f0f0f; border-radius:5px;word-wrap:break-word; overflow: auto; font-family:Courier, monospace; background-color:#000; margin:0px auto;"></div>
+        </div>
+
+        <div class="footer">Standard MIDI File Player (c) 2022 Ryoya Kawai</div>
+
+      </div>
+    </div>
+
+    <!script type="module" src="./scripts/main.js"></script>
+    <script type="text/javascript" src="js/smfParser.js"></script>
+    <script type="text/javascript" src="js/smfPlayer.js"></script>
+    <script type="text/javascript" src="js/webmidilinkSender.js"></script>
+    <script type="text/javascript" src="js/app01.js"></script>
+    <script src="./register_sw.js"></script>
+
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-116678332-1"></script>
+    <script>
+     window.dataLayer = window.dataLayer || [];
+     function gtag(){dataLayer.push(arguments);}
+     gtag('js', new Date());
+
+     gtag('config', 'UA-116678332-1');
+    </script>
+
+  </body>
+</html>
+
