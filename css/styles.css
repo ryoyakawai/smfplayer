@@ -376,3 +376,16 @@ div.loading {
   padding: 3px;
   margin-left: 15px;
 }
+
+div.divInputArea {
+  width: 540px;
+  height: 320px;
+  padding: 6px;
+  border: 1px solid #424242;
+  border-radius:5px;
+  word-wrap:break-word;
+  overflow: auto;
+  font-family:Courier, monospace;
+  background-color: #424242;
+  margin:0px auto;
+}
