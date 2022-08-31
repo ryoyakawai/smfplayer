@@ -56,12 +56,9 @@
               </div>
               <div class="midi-device-set-area">
                 <span><button id="midiOutSelB" type="button" disabled="disabled" class="mdl-button mdl-js-button mdl-button--raised">SET</button></span>
-                <button class="mdl-button mdl-js-button mdl-button--icon panic-button"><span id="panic" class="material-symbols-outlined">🤯</span></button>
               </div>
             </div>
           </div>
-
-
         </div>
 
         <div class="web-midi-link-area-parent">
@@ -69,21 +66,32 @@
         </div>
 
         <div class="midi-file-drop-area-parent">
+          <div class="blocking-overlay">
+            <div class="blocking-overlay-message">Select MIDI OUTPUT Device</div>
+          </div>
           <div class="midi-file-drop-area">
-            <select id="midiFileList" size="5" style="width:290px; border-radius:5px; padding:3px; border-color:#dddddd;"></select>
-            <div><input type="file" id="fileimport" class="form-control" name="files[]" style="width:290px; margin:0px 10px 0px 0px; "></div>
+            <select id="midiFileList" class="midi-file-list" size="5">
+              <option value="" disabled selected>Drop File or Push "UPLOAD" Button</option>
+            </select>
+            <div>
+              <input type="file" id="fileimport" class="form-control" name="files[]">
+              <button id="uploadfile" class="mdl-button mdl-js-button mdl-button--raised upload-ctrl-button"><span class="material-symbols-outlined">file_upload</span> UPLOAD</button>
+            </div>
           </div>
         </div>
 
         <div class="midi-play-control-area-parent">
+          <div class="blocking-overlay"></div>
           <button id="midizero" class="mdl-button mdl-js-button mdl-button--fab midi-play-ctrl-margin"><span class="material-symbols-outlined">skip_previous</span></button>
           <button id="midibackward" class="mdl-button mdl-js-button mdl-button--fab midi-play-ctrl-margin"><span class="material-symbols-outlined">fast_rewind</span></button>
           <button id="midistartB" class="mdl-button mdl-js-button mdl-button--fab midi-play-ctrl-margin"><span id="midistartB" class="material-symbols-outlined">play_arrow</span></button>
           <button id="midiforward" class="mdl-button mdl-js-button mdl-button--fab midi-play-ctrl-margin"><span class="material-symbols-outlined">fast_forward</span></button>
           <button id="midifadeout" class="mdl-button mdl-js-button mdl-button--fab midi-play-ctrl-margin"><span class="material-symbols-outlined">south_east</span></button>
+          <button id="panic" class="mdl-button mdl-js-button mdl-button--icon panic-button"><span class="material-symbols-outlined">cleaning_services</span></button>
         </div>
 
         <div class="midi-status-monitor-area-parent">
+          <div class="blocking-overlay"></div>
           <div class="midi-status-monitor-area-button">
             <div class="midi-status-head"><span class="material-symbols-outlined">volume_up</span></div>
             <div id="midiin1" class="midi-status-button on">1</div>
@@ -107,10 +115,11 @@
 
 
         <div class="midi-recv-msg-area-parent">
+          <div class="blocking-overlay"></div>
           <div id="recvMsg" class="divInputArea"></div>
         </div>
 
-        <div class="footer">Standard MIDI File Player (c) 2022 Ryoya Kawai</div>
+        <div class="footer">Standard MIDI File Player (c) 2022 Ryoya Kawai <a href="https://github.com/ryoyakawai/smfplayer" class="gh-link" target="_blank"><div class="gh-message"><img class="gh-icon" src="images/Logos-Github-icon.png" width="15">GitHub</div></a></div>
 
       </div>
     </div>

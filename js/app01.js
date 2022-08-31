@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014 Ryoya KAWAI
+ *  Copyright 2022 Ryoya KAWAI
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ let timerId;
 let latency = 800;
 let worker;
 let webMidiLinkSynth = [
-  /*
   {
     "id":"wml00", "version": 1, "manufacturer":"g200kg",
     "name":"🧪 GMPlayer (Web MIDI Link)",
@@ -29,6 +28,7 @@ let webMidiLinkSynth = [
     //"url":"//www.g200kg.com/webmidilink/gmplayer/",
     "size":"width=400,height=200,scrollbars=yes,resizable=yes"
   },
+  /*
   {
     "id":"wml01", "version": 1, "manufacturer":"Logue",
     "name":"🧪 SoundFont: Yamaha XG (Web MIDI Link)",
@@ -46,8 +46,6 @@ let chInfo = [
 
 
 (async () => {
-  console.log('-----------------')
-
   // justify width
   let loadingControl = function() { }
   loadingControl.prototype = {
@@ -116,9 +114,9 @@ let chInfo = [
     document.querySelector("#midiOutSelB").removeAttribute("disabled");
 
     document.getElementById("midiOutSelB").addEventListener("click", function() {
-      var port=document.getElementById("midiOutSel").value;
+      var port = document.getElementById("midiOutSel").value;
 
-      if(port>=outputs.length) {
+      if(port >= outputs.length) {
         var sdata=webMidiLinkSynth[port-outputs.length];
         synth.Load(sdata.url, sdata.id, sdata.size, "webmidilink");
         midiout = {
@@ -149,13 +147,19 @@ let chInfo = [
         }
       }
 
-      //document.getElementById("midiinicon").style.setProperty("color", "#5bc0de");
+      let arr_block_ovelays = document.querySelectorAll("div.blocking-overlay");
+      arr_block_ovelays.forEach( elem => {
+        console.log(elem)
+        elem.style.setProperty('opacity', 0)
+        setTimeout( () => {
+          elem.remove()
+        }, 700)
+      })
+
       document.getElementById("midiOutSelB").setAttribute("disabled", "disabled");
       document.getElementById("midiOutSel").setAttribute("disabled", "disabled");
 
-      //document.getElementById("whiteout").style.setProperty("opacity", "0");
       document.getElementById("panic").style.setProperty("visibility", "visible");
-      //setTimeout(function(){document.getElementById("whiteout").style.setProperty("display", "none");}, 500);
       document.getElementById("panic").style.setProperty("visibility", "visible");
       document.getElementById("panic").style.setProperty("opacity", "1");
 
@@ -229,12 +233,14 @@ let chInfo = [
     return false;
   };
 
-
+  // add action to "upload" button
+  document.querySelector("button#uploadfile").addEventListener("mousedown", function(){
+    document.querySelector("input#fileimport").click();
+  });
 
 
   let stopped = false;
   document.getElementById("midistartB").addEventListener("mousedown", async function() {
-    console.log('------------------- ', smfPlayer)
     let buttonMidistartB = document.querySelector("button#midistartB");
     let spanMidistartB = document.querySelector("span#midistartB");
     let Idx = 0
@@ -433,7 +439,6 @@ let chInfo = [
       let id = event.target.id;
       let ch_no = parseInt(id.replace("midiin", ""))-1;
       let elem = document.querySelector("#"+id);
-      console.log(id, ch_no, elem)
       if(chInfo[ch_no].on == true) {
         chInfo[ch_no].on = false;
         elem.classList.remove('on');
