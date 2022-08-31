@@ -1,5 +1,5 @@
 /**
- *  Copyright 2014 Ryoya KAWAI
+ *  Copyright 2022 Ryoya KAWAI
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,395 +14,441 @@
  *  limitations under the License.
  **/
 
-var dispMsgBuffer=[];
-var dispBufferSize=30;
-var dispChildCSize=200;
-var timerId;
-var latency=800;
-var worker;
-var webMidiLinkSynth=[
-    {
-        "id":"wml00", "version": 1, "manufacturer":"g200kg",
-        "name":"[Experimental] GMPlayer (Web MIDI Link)",
-        "url":"//webmusicdevelopers.appspot.com/webtg/gmplayer/index.html",
-        //"url":"//www.g200kg.com/webmidilink/gmplayer/",
-        "size":"width=600,height=600,scrollbars=yes,resizable=yes"
-    },
-    {
-        "id":"wml01", "version": 1, "manufacturer":"Logue",
-        "name":"[Experimental] SoundFont: Yamaha XG (Web MIDI Link)",
-        "url":"//logue.github.io/smfplayer.js/wml.html",
-        "size":"width=600,height=600,scrollbars=yes,resizable=yes"
-    },
-     {
-        "id":"wml02", "version": 1, "manufacturer":"RyoyaKawai",
-        "name":"[Experimental] Piano",
-        "url":"https://ryoyakawai.github.io/x-tonegenerator/piano/index.html",
-        "size":"width=600,height=600,scrollbars=yes,resizable=yes"
-    }
-
+let dispMsgBuffer = [];
+let dispBufferSize = 30;
+let dispChildCSize = 200;
+let timerId;
+let latency = 800;
+let worker;
+let webMidiLinkSynth = [
+  {
+    "id":"wml00", "version": 1, "manufacturer":"g200kg",
+    "name":"🧪 GMPlayer (Web MIDI Link)",
+    "url":"//webmusicdevelopers.appspot.com/webtg/gmplayer/index.html",
+    //"url":"//www.g200kg.com/webmidilink/gmplayer/",
+    "size":"width=400,height=200,scrollbars=yes,resizable=yes"
+  },
+  /*
+  {
+    "id":"wml01", "version": 1, "manufacturer":"Logue",
+    "name":"🧪 SoundFont: Yamaha XG (Web MIDI Link)",
+    "url":"//logue.github.io/smfplayer.js/wml.html",
+    "size":"width=400,height=300,scrollbars=yes,resizable=yes"
+  }
+  */
+];
+let chInfo = [
+  { on: true }, { on: true }, { on: true }, {on: true },
+  { on: true }, { on: true }, { on: true }, {on: true },
+  { on: true }, { on: true }, { on: true }, {on: true },
+  { on: true }, { on: true }, { on: true }, {on: true }
 ];
 
-// Web MIDI API
-var inputs, outputs, midiout;
-var oct=0;
-window.onload=function() {
+
+(async () => {
+  // justify width
+  let loadingControl = function() { }
+  loadingControl.prototype = {
+    addviewport: async () => {
+      return new Promise( (resolve) => {
+        const app_fixed_screen_width = 440
+        let actual_screen_width = window.outerWidth
+        let sig_digit = Math.pow(10, 3)
+        let just_scale = Math.ceil(sig_digit * (actual_screen_width / app_fixed_screen_width)) / sig_digit
+        let viewport = document.createElement('meta')
+        viewport.setAttribute('name', 'viewport')
+        viewport.setAttribute('content', `width=device-width, initial-scale=${just_scale}, maximum-scale=${just_scale}`)
+        document.getElementsByTagName('head')[0].appendChild(viewport)
+        resolve()
+      })
+    },
+    hide: () => {
+      let div_loading = document.querySelector('#loading')
+      setTimeout( () => {
+        div_loading.style.setProperty('opacity', '0')
+      }, 500)
+      setTimeout( () => {
+        document.body.removeChild(div_loading)
+      }, 1500)
+    }
+  }
+  let lc = new loadingControl()
+  await lc.addviewport()
+  // justify width
+
+  // Web MIDI API
+  let inputs = [], outputs = [], midiout = [];
+
+  let oct = 0;
+  window.onload = function() {
     navigator.requestMIDIAccess({sysex: true}).then(scb, ecb);
-};
-function scb(access) {
-    var midi=access;
+  };
+  function scb(access) {
+    const midi = access;
+    const inputs = []
+    const outputs = []
+
     if (typeof midi.inputs === "function") {
-        inputs=midi.inputs();
-        outputs=midi.outputs();
+      inputs = midi.inputs();
+      outputs = midi.outputs();
     } else {
-        var inputIterator = midi.inputs.values();
-        inputs = [];
-        for (var o = inputIterator.next(); !o.done; o = inputIterator.next()) {
-            inputs.push(o.value);
-        }
-        var outputIterator = midi.outputs.values();
-        outputs = [];
-        for (var o = outputIterator.next(); !o.done; o = outputIterator.next()) {
-            outputs.push(o.value);
-        }
+      var inputIterator = midi.inputs.values();
+      //inputs = [];
+      for (let o = inputIterator.next(); !o.done; o = inputIterator.next()) {
+        inputs.push(o.value);
+      }
+      var outputIterator = midi.outputs.values();
+      for (let o = outputIterator.next(); !o.done; o = outputIterator.next()) {
+        outputs.push(o.value);
+      }
     }
 
-    var mosel=document.getElementById("midiOutSel");
-    var options=new Array();
-    for(var i=0; i<outputs.length; i++) {
-        mosel.options[i]=new Option(outputs[i]["name"], i);
+    let mosel = document.getElementById("midiOutSel");
+    let options = new Array();
+    for(let i=0; i<outputs.length; i++) {
+      mosel.options[i]=new Option(outputs[i]["name"], i);
     }
-    for(var i=0; i<webMidiLinkSynth.length; i++) {
-        mosel.options[mosel.options.length]=new Option(webMidiLinkSynth[i].name, mosel.options.length);
+    for(let i=0; i<webMidiLinkSynth.length; i++) {
+      mosel.options[mosel.options.length] = new Option(webMidiLinkSynth[i].name, mosel.options.length);
     }
     document.querySelector("#midiOutSelB").removeAttribute("disabled");
-    
+
     document.getElementById("midiOutSelB").addEventListener("click", function() {
-        var port=document.getElementById("midiOutSel").value;
-        
-        if(port>=outputs.length) {
-            var sdata=webMidiLinkSynth[port-outputs.length];
-            synth.Load(sdata.url, sdata.id, sdata.size, "webmidilink");
-            midiout={
-                "id": null,
-                "manufacturer": sdata.manufacturer,
-                "name": sdata.name,
-                "type": "output",
-                "version": sdata.version,
-                "send": null
-            };
-            midiout.send=function(msg, time) {
-                // time must be converted from absolite time to relative time.
-                // Web MIDI API handles absolute time, but Web MIDI Links needs relative time.
-                var aTime;
-                aTime=time-(window.performance.now()-smfPlayer.startTime)-smfPlayer.startTime+smfPlayer.latency;
-                if(typeof msg=="object") {
-                    for(var i=0; i<msg.length; i++) {
-                        msg[i]=msg[i].toString(16).replace("0x", "");
-                    }
-                }
-                var out="midi,"+msg.join(",");
-                synth.send(out, aTime);
-                
-            };
-        } else {
-            midiout=outputs[port];
-            if(midiout.name.match(/NSX\-39/)) {
-                fireEvent("mousedown", "#midiin1");
-            }
-            
-        }
+      var port = document.getElementById("midiOutSel").value;
 
-        document.getElementById("midiinicon").style.setProperty("color", "#5bc0de");
-        document.getElementById("midiOutSelB").setAttribute("disabled", "disabled");
-        document.getElementById("midiOutSel").setAttribute("disabled", "disabled");
-        
-        document.getElementById("whiteout").style.setProperty("opacity", "0");
-        document.getElementById("panic").style.setProperty("visibility", "visible");
-        setTimeout(function(){document.getElementById("whiteout").style.setProperty("display", "none");}, 500);
-        document.getElementById("panic").style.setProperty("visibility", "visible");
-        document.getElementById("panic").style.setProperty("opacity", "1");
-        
-        document.getElementById("panic").addEventListener("click", function(){
-            for(var i=0; i<16; i++) {
-                var data=[parseInt("0xb"+i.toString(16), 16), 0x78, 0x00];
-                midiout.send(data, 0);
-            }
-        });
-
-        smfPlayer=new SmfPlayer(midiout);
-        smfPlayer.changeUiStop=function() {
-            document.getElementById("midistartB").className="glyphicon glyphicon-play";
+      if(port >= outputs.length) {
+        var sdata=webMidiLinkSynth[port-outputs.length];
+        synth.Load(sdata.url, sdata.id, sdata.size, "webmidilink");
+        midiout = {
+          "id": null,
+          "manufacturer": sdata.manufacturer,
+          "name": sdata.name,
+          "type": "output",
+          "version": sdata.version,
+          "send": null
         };
+        midiout.send=function(msg, time) {
+          // time must be converted from absolite time to relative time.
+          // Web MIDI API handles absolute time, but Web MIDI Links needs relative time.
+          var aTime;
+          aTime=time-(window.performance.now()-smfPlayer.startTime)-smfPlayer.startTime+smfPlayer.latency;
+          if(typeof msg=="object") {
+            for(let i=0; i<msg.length; i++) {
+              msg[i]=msg[i].toString(16).replace("0x", "");
+            }
+          }
+          var out="midi,"+msg.join(",");
+          synth.send(out, aTime);
+        };
+      } else {
+        midiout=outputs[port];
+        if(midiout.name.match(/NSX\-39/)) {
+          fireEvent("mousedown", "#midiin1");
+        }
+      }
+
+      let arr_block_ovelays = document.querySelectorAll("div.blocking-overlay");
+      arr_block_ovelays.forEach( elem => {
+        console.log(elem)
+        elem.style.setProperty('opacity', 0)
+        setTimeout( () => {
+          elem.remove()
+        }, 700)
+      })
+
+      document.getElementById("midiOutSelB").setAttribute("disabled", "disabled");
+      document.getElementById("midiOutSel").setAttribute("disabled", "disabled");
+
+      document.getElementById("panic").style.setProperty("visibility", "visible");
+      document.getElementById("panic").style.setProperty("visibility", "visible");
+      document.getElementById("panic").style.setProperty("opacity", "1");
+
+      document.getElementById("panic").addEventListener("click", function(){
+        for(let i=0; i<16; i++) {
+          var data=[parseInt("0xb"+i.toString(16), 16), 0x78, 0x00];
+          midiout.send(data, 0);
+        }
+      });
+
+      smfPlayer=new SmfPlayer(midiout);
 
     });
-}
-function ecb(e){
+
+    // vvv removing loading overlay vvv
+    lc.hide()
+    // ^^^ removing loading overlay ^^^
+  }
+  function ecb(e){
     console.log("[Error Callback]", e);
-}
-function fireEvent(type, elem) {
+  }
+  function fireEvent(type, elem) {
     if(type=="") type="mousedown";
     var e=document.createEvent('MouseEvent');
     var b=document.querySelector(elem);
     e.initEvent(type, true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
     b.dispatchEvent(e);
-}
+  }
 
-// midi file player
-var smfPlayer, parsedMidi=[];
-var smfParser = new SmfParser();
-var dA=document.getElementById("midiFileList");
-dA.ondragover=function(event) {
+  // midi file player
+  let smfPlayer = {};
+  const parsedMidi = [];
+  const smfParser = new SmfParser();
+  const dA = document.getElementById("midiFileList");
+  dA.addEventListener('dragover', () => {
     event.preventDefault();
     this.style.setProperty("background-color", "#dddddd");
-};
-dA.ondragend=dA.ondragleave=function() {
+  })
+  dA.addEventListener('dragleage', () => {
     this.style.setProperty("background-color", "#ffffff");
-};
-dA.ondrop=fileLoad;
-document.getElementById("fileimport").addEventListener("change", function(event) {
+  })
+
+  dA.ondrop = fileLoad;
+  document.getElementById("fileimport").addEventListener("change", function(event) {
     event.dataTransfer=event.target;
     fileLoad.bind(dA)(event);
-}, false);
-function fileLoad(event) {
+  }, false);
+  function fileLoad(event) {
     this.style.removeProperty("background-color");
     var file = event.dataTransfer.files[0];
     if(typeof file=="undefined") return;
     var reader = new FileReader();
     reader.onload = function (event) {
-        parsedMidi.push( {"name":file.name, "size":~~(file.size/1000), "data": smfParser.parse(event.target.result), "eventNo": 0});
-        var Idx=parsedMidi.length-1;
-        var mfList=document.getElementById("midiFileList");
-        mfList.options[Idx]=new Option(parsedMidi[Idx].name+" ( "+ parsedMidi[Idx].size +" KB )", Idx);
-        mfList.options[Idx].selected=true;
-        
-        
-        dispBufferSize=30;
-        dispChildCSize=200;
-        smfPlayer.dispEventMonitor=dispEventMonitor;
+      parsedMidi.push( {"name":file.name, "size":~~(file.size/1000), "data": smfParser.parse(event.target.result), "eventNo": 0});
+      var Idx=parsedMidi.length-1;
+      var mfList=document.getElementById("midiFileList");
+      mfList.options[Idx]=new Option(parsedMidi[Idx].name+" ( "+ parsedMidi[Idx].size +" KB )", Idx);
+      mfList.options[Idx].selected=true;
+
+
+      dispBufferSize = 30;
+      dispChildCSize = 150;
+      if (typeof smfPlayer.dispEventMonitor == 'undefined') {
+        smfPlayer.dispEventMonitor = {};
+      }
+      smfPlayer.dispEventMonitor = dispEventMonitor;
 
     };
     reader.readAsBinaryString(file);
     event.preventDefault();
     return false;
-};
+  };
+
+  // add action to "upload" button
+  document.querySelector("button#uploadfile").addEventListener("mousedown", function(){
+    document.querySelector("input#fileimport").click();
+  });
 
 
-
-
-var stopped=false;
-document.getElementById("midistart").addEventListener("click", async function() {
-    var midistartB=document.getElementById("midistartB");
-    switch(midistartB.className) {
-      case "glyphicon glyphicon-play":
+  let stopped = false;
+  document.getElementById("midistartB").addEventListener("mousedown", async function() {
+    let buttonMidistartB = document.querySelector("button#midistartB");
+    let spanMidistartB = document.querySelector("span#midistartB");
+    let Idx = 0
+    switch(spanMidistartB.innerHTML) {
+      case 'play_arrow':
         smfPlayer.setStartTime();
-        if(stopped==true) {
-            smfPlayer.changeFinished(false);
+        if (stopped == true) {
+          smfPlayer.changeFinished(false);
         }
-        stopped=false;
-        midistartB.className="glyphicon glyphicon-pause";
-        var Idx=document.getElementById("midiFileList").value;
+        stopped = false;
+        spanMidistartB.innerHTML = 'stop';
+        Idx = document.getElementById("midiFileList").value;
         smfPlayer.init(parsedMidi[Idx].data, latency, parsedMidi[Idx].eventNo);
         await smfPlayer.changeMasterVolume(10);
         smfPlayer.startPlay();
         break;
-      case "glyphicon glyphicon-pause":
-        var Idx=document.getElementById("midiFileList").value;
-        parsedMidi[Idx].eventNo=smfPlayer.eventNo;
-        midistartB.className="glyphicon glyphicon-play";
+      case "stop":
+        Idx = document.getElementById("midiFileList").value;
+        parsedMidi[Idx].eventNo = smfPlayer.eventNo;
+        spanMidistartB.innerHTML = 'play_arrow';
         smfPlayer.stopPlay();
-        stopped=true;
+        stopped = true;
         break;
     }
-});
-document.getElementById("midifadeout").addEventListener("mousedown", async function() {
-  await smfPlayer.changeMasterVolume(127)
+  });
+  document.getElementById("midifadeout").addEventListener("mousedown", async function() {
+    await smfPlayer.changeMasterVolume(127)
 
-  let fadeDuration = 8 // in sec
-  let smfMasterVolume = { value: 127 }
-  let volume = 127 //smfMasterVolume.value
-  const slope = volume / (fadeDuration/1.27)
-  const timeFreq = 1000
-  let timeNow = 0
-  let fadeoutInterval = 0
-  if (fadeoutInterval!=0) return
-  fadeoutInterval = setInterval( async () => {
-    timeNow += timeFreq
-    volume = parseInt(volume) - parseInt(slope)
-    smfMasterVolume.value = parseInt(volume)
-    await smfPlayer.changeMasterVolume(smfMasterVolume.value)
-    if (volume<=0) {
-      setTimeout( async () => {
-        smfPlayer.allSoundOff()
-        smfPlayer.stopPlay()
-        stopped=true;
-        smfMasterVolume.value = 127
-      }, timeFreq + 100)
-      clearInterval(fadeoutInterval)
-      fadeoutInterval = 0
+    let fadeDuration = 8 // in sec
+    let smfMasterVolume = { value: 127 }
+    let volume = 127 //smfMasterVolume.value
+    const slope = volume / (fadeDuration/1.27)
+    const timeFreq = 1000
+    let timeNow = 0
+    let fadeoutInterval = 0
+    if (fadeoutInterval!=0) return
+    fadeoutInterval = setInterval( async () => {
+      timeNow += timeFreq
+      volume = parseInt(volume) - parseInt(slope)
+      smfMasterVolume.value = parseInt(volume)
+      await smfPlayer.changeMasterVolume(smfMasterVolume.value)
+      if (volume<=0) {
+        setTimeout( async () => {
+          smfPlayer.allSoundOff()
+          smfPlayer.stopPlay()
+          stopped=true;
+          smfMasterVolume.value = 127
+          let spanMidistartB = document.querySelector("span#midistartB");
+          spanMidistartB.innerHTML = 'play_arrow';
+        }, timeFreq + 100)
+        clearInterval(fadeoutInterval)
+        fadeoutInterval = 0
+      }
+    }, timeFreq)
+  });
+
+
+  document.getElementById("midiFileList").addEventListener("change", function() {
+    for(let i=0; i<parsedMidi.length; i++) {
+      parsedMidi[i].eventNo=0;
     }
-  }, timeFreq)
-});
+  });
 
-
-document.getElementById("midiFileList").addEventListener("change", function() {
-    for(var i=0; i<parsedMidi.length; i++) {
-        parsedMidi[i].eventNo=0;
-    }
-});
-
-document.getElementById("midizero").addEventListener("click", function() {
+  document.getElementById("midizero").addEventListener("click", function() {
     smfPlayer.moveEvent("zero");
     //smfPlayer=new smfPlayer(parsedMidi, midiout, latency);
-});
+  });
 
-document.getElementById("midiforward").addEventListener("mousedown", function() {
+  document.getElementById("midiforward").addEventListener("mousedown", function() {
     smfPlayer.moveEvent("forward");
-});
+  });
 
-document.getElementById("midibackward").addEventListener("mousedown", function() {
+  document.getElementById("midibackward").addEventListener("mousedown", function() {
     smfPlayer.moveEvent("backward");
-});
+  });
 
+  let midiSTimerId = {"input":[], "output":[]}; // midi status TimerId
+  function dispStatusMonitor(type, ch) {
+    let light = document.getElementById(`midiin${ch}`);
 
-
-
-
-var midiSTimerId={"input":[], "output":[]}; // midi status TimerId
-function dispStatusMonitor(type, ch) {
-    var midiLabel;
-    switch(type) {
-      case "input":
-        midiLabel="midiin"+ch;
-        break;
-      case "output":
-        midiLabel="midiout"+ch;
-        break;
+    if(light.classList.contains('on') && !light.classList.contains('recv')) {
+      setTimeout(function(){
+        light.classList.add('recv');
+        midiSTimerId[type][ch] = setInterval(function() {
+          light.classList.remove('recv');
+          clearInterval(midiSTimerId[type][ch]);
+        }, 700);
+      }, latency);
     }
-    
-    var light=document.getElementById(midiLabel);
-    if(light.className=="label label-default") {
-        setTimeout(function(){
-            light.className="label label-warning";
-            midiSTimerId[type][ch]=setInterval(function() {
-                light.className="label label-default";
-                clearInterval(midiSTimerId[type][ch]);
-            }, 700);
-        }, latency);
-    } 
-}
+/*
+    if(light.className == "label label-default") {
+      setTimeout(function(){
+        light.className = "label label-warning";
+        midiSTimerId[type][ch] = setInterval(function() {
+          light.className = "label label-default";
+          clearInterval(midiSTimerId[type][ch]);
+        }, 700);
+      }, latency);
+    }
+    */
+  }
 
-function dispEventMonitor(msg, type, latency) {
+  function dispEventMonitor(msg, type, latency) {
     var messageDispArea=document.getElementById("recvMsg");
     var spanTag=document.createElement("span");
     spanTag.style.setProperty("margin", "0px 1px 0px 1px");
     spanTag.style.setProperty("color", "#ffffff");
     var msg16="";
-    for(var i=0; i<msg.length; i++) {
-        var tmp;
-        if(typeof msg[i]==="number") {
-            tmp=msg[i].toString(16);
-            if(tmp.length==1) {
-                tmp= "0" + tmp;
-            }
-        } else if(msg[i].length==4 && msg[i].substr(0,2)=="0x"){
-            tmp=msg[i].substr(2, 2);
-        } else {
-            tmp=msg[i];
+    for(let i=0; i<msg.length; i++) {
+      var tmp;
+      if(typeof msg[i]==="number") {
+        tmp=msg[i].toString(16);
+        if(tmp.length==1) {
+          tmp= "0" + tmp;
         }
-        if(i==0) {
-            // for status monitor
-            var ch=(parseInt(tmp.substr(1, 1), 16)+1).toString(10);
-            if(type!="input") {
-                dispStatusMonitor("output", ch);
-                
-            }
-            // for event Monitor
-            var color;
-            switch(tmp.substr(0, 1).toLowerCase()) {
-              case "8":
-                color="color:#ffffff; background-color:#23cdfd;";
-                break;
-              case "9":
-                color="color:#ffffff; background-color:#071cd0;";
-                break;
-              case "a":
-                color="color:#da1019; background-color:#ffffff;";
-                break;
-              case "b":
-                color="color:#071cd0; background-color:#ffffff;";
-                break;
-              case "c":
-                color="color:#ffffff; background-color:#da1019;";
-                break;
-              case "d":
-                color="color:#0a6318; background-color:#ffffff;";
-                break;
-              case "e":
-                color="color:#ffffff; background-color:#0a6318;";
-                break;
-              case "f":
-                color="color:#ffffff; background-color:#ef1984;";
-                break;
-            default:
-                color="color:#ffffff; background-color:#000000;";
-                break;
-            }
-            tmp="<span style=\""+ color +"\">"+tmp+"</span>";
+      } else if(msg[i].length==4 && msg[i].substr(0,2)=="0x"){
+        tmp=msg[i].substr(2, 2);
+      } else {
+        tmp=msg[i];
+      }
+      if(i==0) {
+        // for status monitor
+        var ch=(parseInt(tmp.substr(1, 1), 16)+1).toString(10);
+        if(type!="input") {
+          dispStatusMonitor("output", ch);
         }
-        msg16=msg16 + " " +tmp + " ";
+        // for event Monitor
+        var color;
+        switch(tmp.substr(0, 1).toLowerCase()) {
+          case "8":
+            color="color:#ffffff; background-color:#23cdfd;";
+            break;
+          case "9":
+            color="color:#ffffff; background-color:#071cd0;";
+            break;
+          case "a":
+            color="color:#da1019; background-color:#ffffff;";
+            break;
+          case "b":
+            color="color:#071cd0; background-color:#ffffff;";
+            break;
+          case "c":
+            color="color:#ffffff; background-color:#da1019;";
+            break;
+          case "d":
+            color="color:#0a6318; background-color:#ffffff;";
+            break;
+          case "e":
+            color="color:#ffffff; background-color:#0a6318;";
+            break;
+          case "f":
+            color="color:#ffffff; background-color:#ef1984;";
+            break;
+          default:
+            color="color:#ffffff; background-color:#000000;";
+            break;
+        }
+        tmp="<span style=\""+ color +"\">"+tmp+"</span>";
+      }
+      msg16=msg16 + " " +tmp + " ";
     }
     spanTag.innerHTML=msg16 + " ";
     dispMsgBuffer.push(spanTag);
     if(messageDispArea.firstChild!=null) {
-        if(messageDispArea.childNodes.length>dispChildCSize) {
-            for(var d=dispChildCSize; d<messageDispArea.childNodes.length; d++) {
-                messageDispArea.removeChild(messageDispArea.childNodes[d]);
-            }
-            var elem=document.createElement("span");
-            elem.innerHTML=".....";
-            elem.style.setProperty("color", "#fffff0");
-            elem.style.setProperty("background-color", "#696969");
-            elem.style.setProperty("border-raduius", "3px");
-            messageDispArea.appendChild(elem);
+      if(messageDispArea.childNodes.length>dispChildCSize) {
+        for(let d=dispChildCSize; d<messageDispArea.childNodes.length; d++) {
+          messageDispArea.removeChild(messageDispArea.childNodes[d]);
         }
+        var elem=document.createElement("span");
+        elem.innerHTML=".....";
+        elem.style.setProperty("color", "#fffff0");
+        elem.style.setProperty("background-color", "#696969");
+        elem.style.setProperty("border-raduius", "3px");
+        messageDispArea.appendChild(elem);
+      }
     }
     if(dispMsgBuffer.length>dispBufferSize) {
-        for(var i=0; i<dispMsgBuffer.length; i++) {
-            messageDispArea.insertBefore(dispMsgBuffer[i], messageDispArea.firstChild);
-        }
-        dispMsgBuffer=[];
+      for(let i=0; i<dispMsgBuffer.length; i++) {
+        messageDispArea.insertBefore(dispMsgBuffer[i], messageDispArea.firstChild);
+      }
+      dispMsgBuffer=[];
     }
-};
+  };
 
 
 
-var chInfo=[
-    {"on":true}, {"on":true}, {"on":true}, {"on":true},
-    {"on":true}, {"on":true}, {"on":true}, {"on":true},
-    {"on":true}, {"on":true}, {"on":true}, {"on":true},
-    {"on":true}, {"on":true}, {"on":true}, {"on":true}
-];
-for(var i=0; i<chInfo.length; i++) {
-    var Idx=i+1;
+  for (let i=0; i<chInfo.length; i++) {
+    let Idx=i+1;
     document.querySelector("#midiin"+Idx).addEventListener("mouseover", function(event){
-        var id=event.target.id;
-        document.querySelector("#"+id).style.cursor="pointer";
+      let id=event.target.id;
+      document.querySelector("#"+id).style.cursor="pointer";
     });
     document.querySelector("#midiin"+Idx).addEventListener("mouseout", function(event){
-        var id=event.target.id;
-        document.querySelector("#"+id).style.cursor="default";
+      let id=event.target.id;
+      document.querySelector("#"+id).style.cursor="default";
     });
     document.querySelector("#midiin"+Idx).addEventListener("mousedown", function(event){
-        var id=event.target.id;
-        var chNo=parseInt(id.replace("midiin", ""))-1;
-        var elem=document.querySelector("#"+id);
-        if(chInfo[chNo].on==true) {
-            chInfo[chNo].on=false;
-            elem.className="label label-default";
-        } else {
-            chInfo[chNo].on=true;
-            elem.className="label label-success";
-        }
+      let id = event.target.id;
+      let ch_no = parseInt(id.replace("midiin", ""))-1;
+      let elem = document.querySelector("#"+id);
+      if(chInfo[ch_no].on == true) {
+        chInfo[ch_no].on = false;
+        elem.classList.remove('on');
+      } else {
+        chInfo[ch_no].on = true;
+        elem.classList.add('on');
+      }
     });
-}
+  }
+
+})()
