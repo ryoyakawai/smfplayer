@@ -53,27 +53,6 @@ body {
   width:100%;
   padding: 35px 0;
 }
-button.ble_button {
-  background-color: #adadad;
-  border: none;
-  color: white;
-  padding: 15px 17px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  border-radius: 30px;
-  transition: 0.3s;
-  user-select: none;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
-  cursor: pointer;;
-}
-button.ble_button:hover{
-  box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-}
-button.ble_button:focus {
-  outline:0;
-}
 .midi-device-set-area {
   display: flex;
   justify-content: center;
@@ -404,6 +383,9 @@ select.midi-file-list {
 }
 button.upload-ctrl-button {
   margin: 5px 0;
+}
+button.upload-ctrl-button,
+button.play-ctrl-button {
   display: flex;
   align-items: center;
   justify-content: center;

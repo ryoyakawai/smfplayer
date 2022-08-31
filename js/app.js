@@ -288,6 +288,8 @@ let chInfo = [
           smfPlayer.stopPlay()
           stopped=true;
           smfMasterVolume.value = 127
+          let spanMidistartB = document.querySelector("span#midistartB");
+          spanMidistartB.innerHTML = 'play_arrow';
         }, timeFreq + 100)
         clearInterval(fadeoutInterval)
         fadeoutInterval = 0
